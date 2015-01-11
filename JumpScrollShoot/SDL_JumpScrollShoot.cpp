@@ -1,39 +1,23 @@
-/*
- *
- *
- *
-*/
+//============================================================================
+// Name        : 
+// Author      : Don England
+// Version     :
+// Copyright   : (c) 2015
+// Description : 
+//============================================================================
 
 #include <SDL.h>
 #include <stdio.h>
 #include <string>
 #include <cmath>
+#include <iostream>
+
+#include "JumpScrollShoot.h"
+#include "JSS_PhysicsComponent.h"
 
 #define title "JumpScrollShoot"
-
-// TODO(don): Change this type name
-// TODO(don): Implement mobile platform colliders
-enum class ColliderCategory { immobile, mobile, player, enemy, playerAttack, enemyAttack };
-
-// TODO(don): Should colliders register themselves to a collision handler?
-struct Collider
-{
-	float x;
-	float y;
-
-	float w;
-	float h;
-
-	ColliderCategory category;
-};
-
-// TODO(don): resolving contact points requires the ability to notify parent
-struct ContactPoint
-{
-	Collider *a;
-	Collider *b;
-	float angle;
-};
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
 
 struct Player
 {
@@ -59,6 +43,7 @@ struct WorldBounds
 {
 	int width;
 	int height;
+	/*
 	union
 	{
 		Collider edges[4];
@@ -70,15 +55,16 @@ struct WorldBounds
 			Collider bottom;
 		};
 	};
+	*/
 };
 
 struct Screen
 {
-	int width = 640;
-	int height = 480;
+	int width;
+	int height;
 };
 
-bool handleEvent(SDL_Event *event, Screen *screen, Player *player)
+bool handleEvent(SDL_Event *event, EntityInput *input, int numInputs, Screen *screen, Player *player)
 {
 	bool result = false;
 	//User requests quit
@@ -96,15 +82,34 @@ bool handleEvent(SDL_Event *event, Screen *screen, Player *player)
 				{
 					result = true;
 				} break;
+
+				case SDLK_w: // FALL THROUGH
+				case SDLK_UP:
+				{
+					input[0].up = 1;
+				} break;
+
+				case SDLK_s: // FALL THROUGH
+				case SDLK_DOWN:
+				{
+					input[0].down = 1;
+				} break;
+
 				case SDLK_d: // FALL THROUGH
 				case SDLK_RIGHT:
 				{
+					input[0].right = 1;
 					player->right = 1;
 				} break;
 				case SDLK_a: // FALL THROUGH
 				case SDLK_LEFT:
 				{
+					input[0].left = 1;
 					player->left = 1;
+				} break;
+				case SDLK_SPACE:
+				{
+					printf("Space pressed!\n");
 				} break;
 			}
 		} break;
@@ -112,14 +117,29 @@ bool handleEvent(SDL_Event *event, Screen *screen, Player *player)
 		{
 			switch (event->key.keysym.sym)
 			{
+				case SDLK_w: // FALL THROUGH
+				case SDLK_UP:
+				{
+					input[0].up = 0;
+				} break;
+
+				case SDLK_s: // FALL THROUGH
+				case SDLK_DOWN:
+				{
+					input[0].down = 0;
+				} break;
+
 				case SDLK_d: // FALL THROUGH
 				case SDLK_RIGHT:
 				{
+					input[0].right = 0;
 					player->right = 0;
 				} break;
+
 				case SDLK_a: // FALL THROUGH
 				case SDLK_LEFT:
 				{
+					input[0].left = 0;
 					player->left = 0;
 				} break;
 			}
@@ -145,7 +165,7 @@ bool handleEvent(SDL_Event *event, Screen *screen, Player *player)
 	return result;
 }
 
-void updatePlayer(Player *player, Screen *screen, uint32_t deltaTime)
+void updatePlayer(Player *player, Screen *screen, uint32 deltaTime)
 {
 	// Adjust for accelerations
 	if (!player->left && !player->right || player->left && player->right)
@@ -216,17 +236,25 @@ void updatePlayer(Player *player, Screen *screen, uint32_t deltaTime)
 int main(int argc, char* args[])
 {
 	// Initialize SDL
-	if (SDL_Init(SDL_INIT_VIDEO) < 0)
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0)
 	{
-		printf("Could not initialize SDL Error: %s\n", SDL_GetError());
+		std::cout << "Could not initialize SDL Error: "<< SDL_GetError() << std::endl;
 	}
 	else
 	{
+		// NOTE(don): input has up to 5 inputs (1 keyboard and up to 4 controllers)
+		EntityInput inputs[MAX_ENTITY_INPUTS] = {};
+		EntityInput *input = inputs;
+		int numInputs = (1 + SDL_NumJoysticks());
+		// TODO(don): open and close each joystick for initialization and shutdown respectively
+		std::cout << "Found " << numInputs - 1 << " controllers!" << std::endl;
+
+
 		SDL_Window *window = nullptr;
 
 		Screen screen = {};
-		screen.width = 640;
-		screen.height = 480;
+		screen.width = SCREEN_WIDTH;
+		screen.height = SCREEN_HEIGHT;
 		// Create SDL window
 		window = SDL_CreateWindow(title,
 								  SDL_WINDOWPOS_UNDEFINED,
@@ -236,7 +264,7 @@ int main(int argc, char* args[])
 								  SDL_WINDOW_RESIZABLE);
 		if (window == nullptr)
 		{
-			printf("Could not create SDL window Error: %s\n", SDL_GetError());
+			std::cout << "Could not create SDL window Error: " << SDL_GetError() << std::endl;
 		}
 		else
 		{
@@ -245,10 +273,15 @@ int main(int argc, char* args[])
 			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 			if (renderer == nullptr)
 			{
-				printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
+				std::cout << "Renderer could not be created! SDL Error: " << SDL_GetError() << std::endl;
+
 			}
 			else
 			{
+				// Make world
+				WorldBounds world = {};
+
+				// Make player
 				Player player = {};
 				player.width = (int)(screen.height / 10);
 				player.height = player.width;
@@ -262,9 +295,10 @@ int main(int argc, char* args[])
 				player.yVelMax = 0.5f;
 				player.xyAcceleration = 0.01f;
 
-				uint32_t startTime = SDL_GetTicks();
+				uint32 startTime = SDL_GetTicks();
 
 				// Main Loop
+				JumpScrollShoot jumpScrollShoot;
 				bool running = true;
 				while (running)
 				{
@@ -272,14 +306,14 @@ int main(int argc, char* args[])
 					SDL_Event event;
 					while (SDL_PollEvent(&event) != 0)
 					{
-						if (handleEvent(&event, &screen, &player))
+						if (handleEvent(&event, input, numInputs, &screen, &player))
 						{
 							running = false;
 						}
 					}
 
-					uint32_t currentTime = SDL_GetTicks();
-					uint32_t deltaTime = currentTime - startTime;
+					uint32 currentTime = SDL_GetTicks();
+					uint32 deltaTime = currentTime - startTime;
 					startTime = currentTime;
 					updatePlayer(&player, &screen, deltaTime);
 
@@ -287,9 +321,11 @@ int main(int argc, char* args[])
 					SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 					SDL_RenderClear(renderer);
 
+					jumpScrollShoot.GameLoop(input, numInputs, deltaTime, renderer);
+
 					// Render player quad
-					SDL_Rect playerRect = { player.xPos, player.yPos, player.width, player.height };
-					SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
+					SDL_Rect playerRect = { (int)player.xPos, (int)player.yPos, player.width, player.height };
+					SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0xFF, 0xFF);
 					SDL_RenderFillRect(renderer, &playerRect);
 
 					// Render green outlined quad
@@ -312,22 +348,22 @@ int main(int argc, char* args[])
 					SDL_RenderPresent(renderer);
 				}
 			}
+			// Clean up renderer
+			if (renderer != nullptr)
+			{
+				SDL_DestroyRenderer(renderer);
+				renderer = nullptr;
+			}
+		}
+		// Clean up window
+		if (window != nullptr)
+		{
+			SDL_DestroyWindow(window);
+			window = nullptr;
 		}
 	}
 
-	// Clean up
-	/*
-	if (renderer != nullptr)
-	{
-		SDL_DestroyRenderer(renderer);
-		renderer = nullptr;
-	}
-	if (window != nullptr)
-	{
-		SDL_DestroyWindow(window);
-		window = nullptr;
-	}
-	*/
+	// Clean up SDL
 	SDL_Quit();
 
 	return 0;
