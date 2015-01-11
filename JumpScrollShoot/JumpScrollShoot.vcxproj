@@ -69,6 +69,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="JSS_ColliderComponent.cpp" />
     <ClCompile Include="JSS_Entity.cpp" />
     <ClCompile Include="JSS_InputComponent.cpp" />
     <ClCompile Include="JSS_PhysicsComponent.cpp" />

@@ -19,26 +19,6 @@
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
 
-struct Player
-{
-	int width;
-	int height;
-
-	int left;
-	int right;
-
-	float xPos;
-	float yPos;
-
-	float xVel;
-	float yVel;
-
-	float xVelMax;
-	float yVelMax;
-
-	float xyAcceleration;
-};
-
 struct WorldBounds
 {
 	int width;
@@ -64,7 +44,7 @@ struct Screen
 	int height;
 };
 
-bool handleEvent(SDL_Event *event, EntityInput *input, int numInputs, Screen *screen, Player *player)
+bool handleEvent(SDL_Event *event, EntityInput *input, int numInputs, Screen *screen)
 {
 	bool result = false;
 	//User requests quit
@@ -99,13 +79,11 @@ bool handleEvent(SDL_Event *event, EntityInput *input, int numInputs, Screen *sc
 				case SDLK_RIGHT:
 				{
 					input[0].right = 1;
-					player->right = 1;
 				} break;
 				case SDLK_a: // FALL THROUGH
 				case SDLK_LEFT:
 				{
 					input[0].left = 1;
-					player->left = 1;
 				} break;
 				case SDLK_SPACE:
 				{
@@ -133,14 +111,12 @@ bool handleEvent(SDL_Event *event, EntityInput *input, int numInputs, Screen *sc
 				case SDLK_RIGHT:
 				{
 					input[0].right = 0;
-					player->right = 0;
 				} break;
 
 				case SDLK_a: // FALL THROUGH
 				case SDLK_LEFT:
 				{
 					input[0].left = 0;
-					player->left = 0;
 				} break;
 			}
 		}
@@ -152,85 +128,12 @@ bool handleEvent(SDL_Event *event, EntityInput *input, int numInputs, Screen *sc
 				{
 					screen->width = event->window.data1;
 					screen->height = event->window.data2;
-					player->width = (int)(screen->height / 10);
-					player->height = player->width;
-					player->xVelMax = (float)(screen->width / 2000.0f);
-					player->xPos = (float)(screen->width / 2.0f);
-					player->yPos = (float)((screen->height / 2.0f) - (player->height / 2.0f));
 				} break;
 			}
 		} break;
 	}
 
 	return result;
-}
-
-void updatePlayer(Player *player, Screen *screen, uint32 deltaTime)
-{
-	// Adjust for accelerations
-	if (!player->left && !player->right || player->left && player->right)
-	{
-		// Decelerate
-		if (player->xVel > 0.5f)
-		{
-			player->xVel -= player->xyAcceleration * 2;
-		}
-		else if (player->xVel < -0.5f)
-		{
-			player->xVel += player->xyAcceleration * 2;
-		}
-		else
-		{
-			player->xVel = 0.0f;
-		}
-	}
-	else if (player->right)
-	{
-		// go right
-		if (player->xVel > 0)
-		{
-			player->xVel += player->xyAcceleration;
-		}
-		else
-		{
-			player->xVel += player->xyAcceleration * 2;
-		}
-	}
-	else if (player->left)
-	{
-		// go left
-		if (player->xVel < 0)
-		{
-			player->xVel -= player->xyAcceleration;
-		}
-		else
-		{
-			player->xVel -= player->xyAcceleration * 2;
-		}
-	}
-
-	// Check for maximum velocity
-	if (player->xVel > player->xVelMax)
-	{
-		player->xVel = player->xVelMax;
-	}
-	else if (player->xVel < -player->xVelMax)
-	{
-		player->xVel = -player->xVelMax;
-	}
-
-	// Update position
-	player->xPos += player->xVel*deltaTime;
-
-	// Check for collision
-	if (player->xPos > (float)(screen->width - player->width))
-	{
-		player->xPos = (float)(screen->width - player->width);
-	}
-	else if (player->xPos < 0.0f)
-	{
-		player->xPos = 0.0f;
-	}
 }
 
 int main(int argc, char* args[])
@@ -281,20 +184,6 @@ int main(int argc, char* args[])
 				// Make world
 				WorldBounds world = {};
 
-				// Make player
-				Player player = {};
-				player.width = (int)(screen.height / 10);
-				player.height = player.width;
-				player.left = 0;
-				player.right = 0;
-				player.xPos = (float)(screen.width / 2.0f);
-				player.yPos = (float)((screen.height / 2.0f) -(player.height / 2.0f));
-				player.xVel = 0.0f;
-				player.yVel = 0.0f;
-				player.xVelMax = (float)(screen.width / 2000.0f);//0.5f;
-				player.yVelMax = 0.5f;
-				player.xyAcceleration = 0.01f;
-
 				uint32 startTime = SDL_GetTicks();
 
 				// Main Loop
@@ -306,7 +195,7 @@ int main(int argc, char* args[])
 					SDL_Event event;
 					while (SDL_PollEvent(&event) != 0)
 					{
-						if (handleEvent(&event, input, numInputs, &screen, &player))
+						if (handleEvent(&event, input, numInputs, &screen))
 						{
 							running = false;
 						}
@@ -315,18 +204,12 @@ int main(int argc, char* args[])
 					uint32 currentTime = SDL_GetTicks();
 					uint32 deltaTime = currentTime - startTime;
 					startTime = currentTime;
-					updatePlayer(&player, &screen, deltaTime);
 
 					// Clear screen
 					SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 					SDL_RenderClear(renderer);
 
 					jumpScrollShoot.GameLoop(input, numInputs, deltaTime, renderer);
-
-					// Render player quad
-					SDL_Rect playerRect = { (int)player.xPos, (int)player.yPos, player.width, player.height };
-					SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0xFF, 0xFF);
-					SDL_RenderFillRect(renderer, &playerRect);
 
 					// Render green outlined quad
 					SDL_Rect outlineRect = { screen.width / 6, screen.height / 6, screen.width * 2 / 3, screen.height * 2 / 3 };

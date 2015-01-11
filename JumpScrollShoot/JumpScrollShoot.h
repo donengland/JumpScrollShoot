@@ -16,6 +16,7 @@
 #include "JSS_Entity.h"
 #include "JSS_TransformComponent.h"
 #include "JSS_InputComponent.h"
+#include "JSS_ColliderComponent.h"
 
 #define MAX_ENTITY_INPUTS 5
 
@@ -34,10 +35,12 @@ private:
 	Entity entities[MAX_ENTITIES];
 	TransformComponent transformComponents[MAX_ENTITIES];
 	InputComponent inputComponents[MAX_ENTITIES];
+	ColliderComponent colliderComponents[MAX_ENTITIES];
 
 	int numEntities;
 	int numTransforms;
 	int numInputs;
+	int numColliders;
 };
 
 #endif

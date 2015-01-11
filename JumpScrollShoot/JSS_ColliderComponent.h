@@ -18,23 +18,40 @@ enum class ColliderCategory { immobile, mobile, player, enemy, playerAttack, ene
 class ColliderComponent : public Component
 {
 public:
-	ColliderComponent(TransformComponent *Transform) { transform = Transform; }
+	ColliderComponent();
+	ColliderComponent(Entity *ColliderEntity,
+					  TransformComponent *Transform,
+					  float localX = 0.0f, float localY = 0.0f,
+					  float Width = 0.0f, float Height = 0.0f,
+					  ColliderCategory Category = ColliderCategory::immobile);
+
 	void receive(ComponentMessage message);
 
-	float getX() { return x; }
-	float getY() { return y; }
+	void resetCollisions();
+	void resolveCollision(ColliderComponent &other);
 
-	void setX(float X) { x = X; }
-	void setY(float Y) { y = Y; }
+	bool isGrounded();
 
-	float getWidth() { return width; }
-	float getHeight() { return height; }
+	float getLocalX();
+	float getLocalY();
 
-	void setWidth(float Width) { width = Width; }
-	void setHeight(float Height) { height = Height; }
+	float getMinX();
+	float getMaxX();
 
-	ColliderCategory getCategory() { return category; }
-	void setCategory(ColliderCategory Category) { category = Category; }
+	float getMinY();
+	float getMaxY();
+
+	void setX(float X);
+	void setY(float Y);
+
+	float getWidth();
+	float getHeight();
+
+	void setWidth(float Width);
+	void setHeight(float Height);
+
+	ColliderCategory getCategory();
+	void setCategory(ColliderCategory Category);
 
 private:
 	Entity *entity;
@@ -46,6 +63,10 @@ private:
 	float width;
 	float height;
 
+	bool right;
+	bool left;
+	bool above;
+	bool below;
 };
 
 #endif
