@@ -211,22 +211,6 @@ int main(int argc, char* args[])
 
 					jumpScrollShoot.GameLoop(input, numInputs, deltaTime, renderer);
 
-					// Render green outlined quad
-					SDL_Rect outlineRect = { screen.width / 6, screen.height / 6, screen.width * 2 / 3, screen.height * 2 / 3 };
-					SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0x00, 0xFF);
-					SDL_RenderDrawRect(renderer, &outlineRect);
-
-					// Draw blue horizontal line
-					SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0xFF, 0xFF);
-					SDL_RenderDrawLine(renderer, 0, screen.height / 2, screen.width, screen.height / 2);
-
-					// Draw vertical line of yellow dots
-					SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0x00, 0xFF);
-					for (int i = 0; i < screen.height; i += 4)
-					{
-						SDL_RenderDrawPoint(renderer, screen.width / 2, i);
-					}
-
 					// Update screen
 					SDL_RenderPresent(renderer);
 				}

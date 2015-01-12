@@ -71,6 +71,7 @@
   <ItemGroup>
     <ClCompile Include="JSS_ColliderComponent.cpp" />
     <ClCompile Include="JSS_Entity.cpp" />
+    <ClCompile Include="JSS_GraphicsComponent.cpp" />
     <ClCompile Include="JSS_InputComponent.cpp" />
     <ClCompile Include="JSS_PhysicsComponent.cpp" />
     <ClCompile Include="JSS_TransformComponent.cpp" />
@@ -78,6 +79,7 @@
     <ClCompile Include="SDL_JumpScrollShoot.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="JSS_GraphicsComponent.h" />
     <ClInclude Include="JSS_ColliderComponent.h" />
     <ClInclude Include="JSS_Component.h" />
     <ClInclude Include="JSS_Entity.h" />

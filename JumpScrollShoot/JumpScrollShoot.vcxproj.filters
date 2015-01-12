@@ -36,6 +36,9 @@
     <ClCompile Include="JSS_ColliderComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="JSS_GraphicsComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="JSS_PhysicsComponent.h">
@@ -60,6 +63,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="JSS_InputComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="JSS_GraphicsComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
