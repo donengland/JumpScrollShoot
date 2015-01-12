@@ -37,6 +37,7 @@ ColliderComponent::ColliderComponent(Entity *ColliderEntity,
 	left = false;
 	above = false;
 	below = false;
+	grounded = false;
 };
 
 void ColliderComponent::resetCollisions()
@@ -45,6 +46,7 @@ void ColliderComponent::resetCollisions()
 	left = false;
 	above = false;
 	below = false;
+	grounded = false;
 }
 void ColliderComponent::resolveCollision(ColliderComponent &other)
 {
@@ -126,12 +128,17 @@ void ColliderComponent::resolveCollision(ColliderComponent &other)
 		{
 			transform->changeY(changeY);
 		}
+
+		if (below && (abs(getMaxY() - other.getMinY()) < .5f))
+		{
+			grounded = true;
+		}
 	}
 };
 
 bool ColliderComponent::isGrounded()
 {
-	return below;
+	return grounded;
 }
 
 void ColliderComponent::receive(ComponentMessage message)

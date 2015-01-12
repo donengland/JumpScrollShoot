@@ -15,6 +15,7 @@ JumpScrollShoot::JumpScrollShoot()
 	numInputs = 0;
 	numColliders = 0;
 	numGraphics = 0;
+	numPhysics = 0;
 
 	worldSize = 640;
 
@@ -22,6 +23,7 @@ JumpScrollShoot::JumpScrollShoot()
 	camCenterY = 0;
 	camHalfWidth = 320;
 	camHalfHeight = 240;
+	camSpeed = 15.f;
 	
 	init = false;
 }
@@ -63,11 +65,6 @@ void JumpScrollShoot::GameInit()
 		transformComponents[0] = playerTransform;
 		numTransforms++;
 
-		// InputComponent created and copied over element 0 player one
-		InputComponent playerInput(&transformComponents[0], 0.5f);
-		inputComponents[0] = playerInput;
-		numInputs++;
-
 		// TODO(don): Resolve width and height at a higher level
 		// ColliderComponent created and copied over element 0 player one
 		ColliderComponent playerCollider(&entities[0], &transformComponents[0], 0.f, 0.f, 50.f, 50.f, ColliderCategory::player);
@@ -79,13 +76,26 @@ void JumpScrollShoot::GameInit()
 		graphicsComponents[0] = playerGraphics;
 		numGraphics++;
 
+		// PhysicsComponent created and copied over element 0 player one
+		PhysicsComponent playerPhysics(&entities[0], &transformComponents[0], &colliderComponents[0]);
+		physicsComponents[0] = playerPhysics;
+		numPhysics++;
+
+		// InputComponent created and copied over element 0 player one
+		InputComponent playerInput(&entities[0], &transformComponents[0], &physicsComponents[0], 300.f);
+		inputComponents[0] = playerInput;
+		numInputs++;
+
 		// Tell entity[0] player one about components
 		entities[0].addComponent(&transformComponents[0]);
 		entities[0].addComponent(&inputComponents[0]);
 		entities[0].addComponent(&colliderComponents[0]);
 		entities[0].addComponent(&graphicsComponents[0]);
+		entities[0].addComponent(&physicsComponents[0]);
 	}
 
+	// TODO(don): world needs edge bounds only, camera can restrict movement from there
+	//    Perhaps a secondary grid for camera restrictions?
 	// NOTE(don): world entity for initial colliderComponent tests
 	// Create World Entity
 	{
@@ -136,18 +146,19 @@ void JumpScrollShoot::GameInit()
 	// create temp blocks
 	{
 		CreateBlock(600.f, 300.f, 100.f, 100.f, 0x00, 0xFF, 0xFF);
-		CreateBlock(500.f, 400.f, 200.f, 100.f, 0x00, 0xFF, 0xFF);
-		CreateBlock(400.f, 500.f, 300.f, 100.f, 0x00, 0xFF, 0xFF);
-		CreateBlock(300.f, 600.f, 400.f, 100.f, 0x00, 0xFF, 0xFF);
-		CreateBlock(0.f, 700.f, worldSize, 50.f, 0xFF, 0xFF, 0x00);
+		CreateBlock(500.f, 400.f, 300.f, 100.f, 0x00, 0xFF, 0xFF);
+		CreateBlock(400.f, 500.f, 500.f, 100.f, 0x00, 0xFF, 0xFF);
+		CreateBlock(300.f, 600.f, 700.f, 100.f, 0x00, 0xFF, 0xFF);
+		CreateBlock(0.f, 700.f, (float)(worldSize), 50.f, 0xFF, 0xFF, 0x00);
 	}
 
 	init = true;
 }
 
 
-void JumpScrollShoot::GameLoop(EntityInput* input, int NumInputs, uint32 deltaTime, SDL_Renderer *renderer)
+void JumpScrollShoot::GameLoop(EntityInput* input, int NumInputs, uint32 DeltaTime, SDL_Renderer *renderer)
 {
+	float deltaTime = DeltaTime / 1000.f;
 	// TODO(don): look up branching rules.  Is it better to test init true?
 	if (init == false)
 	{
@@ -164,12 +175,19 @@ void JumpScrollShoot::GameLoop(EntityInput* input, int NumInputs, uint32 deltaTi
 		// Process all inputs
 		for (int index = 0; index < numInputs; index++)
 		{
-			inputComponents[index].processInput(input[0], deltaTime);
+			inputComponents[index].processInput(input[1], deltaTime);
+		}
+
+		// Process all forces
+		// TODO(don): implement physics components, apply all forces
+		for (int index = 0; index < numPhysics; index++)
+		{
+			physicsComponents[index].update(deltaTime);
 		}
 
 		// TODO(don): Implement a broad stage pass to reduce the number of comparisons
 		//    try binary space partitioning (bsp)
-		// Process all colliders
+		// Process all colliders -- add any appropriate physics forces
 		for (int primary = 0; primary < numColliders; primary++)
 		{
 			ColliderCategory primaryCat = colliderComponents[primary].getCategory();
@@ -214,9 +232,26 @@ void JumpScrollShoot::GameLoop(EntityInput* input, int NumInputs, uint32 deltaTi
 
 
 		// Move camera over player
-		// TODO(don): Use averaged player position for camera center point
+		// TODO(don): Use averaged player position for camera center point		
 		camCenterX = (int)transformComponents[0].getX();
-		camCenterY = (int)transformComponents[0].getY();
+		float targetY = (int)transformComponents[0].getY();
+		if (camCenterY < targetY)
+		{
+			camCenterY += camSpeed;
+			if (camCenterY > targetY)
+			{
+				camCenterY = targetY;
+			}
+		}
+		else
+		{
+			camCenterY -= camSpeed;
+			if (camCenterY < targetY)
+			{
+				camCenterY = targetY;
+			}
+		}
+
 		// TODO(don): Adjust camera if it goes past an edge
 		// TODO(don): assert camera smaller than world
 		if ((camCenterX - camHalfWidth) < 0)

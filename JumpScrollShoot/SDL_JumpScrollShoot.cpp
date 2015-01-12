@@ -18,6 +18,9 @@
 #define title "JumpScrollShoot"
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
+#define JOYSTICK_DEAD_ZONE 8000
+
+SDL_GameController *gGamepad = nullptr;
 
 struct WorldBounds
 {
@@ -85,9 +88,13 @@ bool handleEvent(SDL_Event *event, EntityInput *input, int numInputs, Screen *sc
 				{
 					input[0].left = 1;
 				} break;
+				case SDLK_e:
+				{
+					input[0].shoot = 1;
+				} break;
 				case SDLK_SPACE:
 				{
-					printf("Space pressed!\n");
+					//input[0].jump += 1;
 				} break;
 			}
 		} break;
@@ -118,6 +125,14 @@ bool handleEvent(SDL_Event *event, EntityInput *input, int numInputs, Screen *sc
 				{
 					input[0].left = 0;
 				} break;
+				case SDLK_e:
+				{
+					input[0].shoot = 0;
+				} break;
+				case SDLK_SPACE:
+				{
+					//input[0].jump = 0;
+				} break;
 			}
 		}
 		case SDL_WINDOWEVENT:
@@ -139,7 +154,7 @@ bool handleEvent(SDL_Event *event, EntityInput *input, int numInputs, Screen *sc
 int main(int argc, char* args[])
 {
 	// Initialize SDL
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0)
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0)
 	{
 		std::cout << "Could not initialize SDL Error: "<< SDL_GetError() << std::endl;
 	}
@@ -151,6 +166,10 @@ int main(int argc, char* args[])
 		int numInputs = (1 + SDL_NumJoysticks());
 		// TODO(don): open and close each joystick for initialization and shutdown respectively
 		std::cout << "Found " << numInputs - 1 << " controllers!" << std::endl;
+		if (numInputs > 1)
+		{
+			gGamepad = SDL_GameControllerOpen(0);
+		}
 
 
 		SDL_Window *window = nullptr;
@@ -205,6 +224,52 @@ int main(int argc, char* args[])
 					uint32 deltaTime = currentTime - startTime;
 					startTime = currentTime;
 
+					// TODO(don): Fix Update Controller
+					{
+						if (SDL_GameControllerGetButton(gGamepad, SDL_CONTROLLER_BUTTON_A))
+						{
+							input[1].jump += 1;
+						}
+						else
+						{
+							input[1].jump = 0;
+						}
+
+						input[1].shoot = SDL_GameControllerGetButton(gGamepad, SDL_CONTROLLER_BUTTON_X);
+						int16_t StickX = SDL_GameControllerGetAxis(gGamepad, SDL_CONTROLLER_AXIS_LEFTX);
+						int16_t StickY = SDL_GameControllerGetAxis(gGamepad, SDL_CONTROLLER_AXIS_LEFTY);
+						if (StickX > JOYSTICK_DEAD_ZONE)
+						{
+							input[1].right = 1;
+							input[1].left = 0;
+						}
+						else if (StickX < -JOYSTICK_DEAD_ZONE)
+						{
+							input[1].left = 1;
+							input[1].right = 0;
+						}
+						else
+						{
+							input[1].left = 0;
+							input[1].right = 0;
+						}
+						if (StickY > JOYSTICK_DEAD_ZONE)
+						{
+							input[1].up = 0;
+							input[1].down = 1;
+						}
+						else if (StickY < -JOYSTICK_DEAD_ZONE)
+						{
+							input[1].down = 0;
+							input[1].up = 1;
+						}
+						else
+						{
+							input[1].down = 0;
+							input[1].up = 0;
+						}
+					}
+
 					// Clear screen
 					SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 					SDL_RenderClear(renderer);
@@ -213,6 +278,8 @@ int main(int argc, char* args[])
 
 					// Update screen
 					SDL_RenderPresent(renderer);
+
+					SDL_Delay(33);
 				}
 			}
 			// Clean up renderer
@@ -229,6 +296,9 @@ int main(int argc, char* args[])
 			window = nullptr;
 		}
 	}
+
+	SDL_GameControllerClose(gGamepad);
+	gGamepad = nullptr;
 
 	// Clean up SDL
 	SDL_Quit();

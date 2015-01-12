@@ -6,119 +6,161 @@
 // Description : 
 //============================================================================
 
+#include <iostream>
 #include "JSS_PhysicsComponent.h"
+
+PhysicsComponent::PhysicsComponent()
+{
+	activeForces[MAX_PHYSICS_FORCES] = {};
+	entity = nullptr;
+	transform = nullptr;
+	collider = nullptr;
+
+	mass = 1.0f;
+
+	gravity = false;
+
+	xVel = 0.f;
+	yVel = 0.f;
+
+	xAccel = 0.f;
+	yAccel = 0.f;
+}
+PhysicsComponent::PhysicsComponent(Entity *physicsEntity, TransformComponent *physicsTransform, ColliderComponent *physicsCollider, float Mass, bool Gravity)
+{
+	activeForces[MAX_PHYSICS_FORCES] = {};
+	entity = physicsEntity;
+	transform = physicsTransform;
+	collider = physicsCollider;
+
+	mass = Mass;
+
+	gravity = Gravity;
+
+	xVel = 0.f;
+	yVel = 0.f;
+
+	xAccel = 0.f;
+	yAccel = 0.f;
+}
 
 void PhysicsComponent::receive(ComponentMessage message)
 {
 	
 };
 
-void PhysicsComponent::applyForce(float forceX, float forceY)
+// NOTE(don): possible problem with ticks on applying forces (on collision)
+//    perhaps maintain some standard tick rate of every 2 seconds?
+bool PhysicsComponent::addForce(PhysicsForce force)
 {
-	xAccel += forceX / mass;
-	yAccel += forceY / mass;
-
-	// TODO(don): Would normalization work better? -1 to 1 | where 1 is maxAccel
-	// Check for x acceleration bounds
-	if (xAccel > xAccelMax)
+	// TODO(don): handle adding forces when there is no room
+	//    remove the shortest duration? Sort by duration in general?
+	bool result = false;
+	for (int index = 0; index < MAX_PHYSICS_FORCES; index++)
 	{
-		xAccel = xAccelMax;
-	}
-	else if (xAccel < -xAccelMax)
-	{
-		xAccel = -xAccelMax;
-	}
-
-	// Check for y acceleration bounds
-	if (yAccel > yAccelMax)
-	{
-		yAccel = yAccelMax;
-	}
-	else if (yAccel < -yAccelMax)
-	{
-		yAccel = -yAccelMax;
-	}
-}
-/*
-* Updates physics given a deltaTime in milliseconds
-*/
-
-void PhysicsComponent::update(uint32 deltaTime)
-{
-	// deltaTime is given in milliseconds, convert to seconds
-	deltaTime = deltaTime / 1000;
-
-	// Update velocities
-	// Note(don): velocity = integral of acceleration dt
-	// v_i*t + (1/2)*a*t^2
-	// v_f = v_i + at
-	xVel += xAccel * deltaTime;
-	yVel += yAccel * deltaTime;
-
-	// Bounds check x velocity
-	if (xVel > xVelMax)
-	{
-		xVel = xVelMax;
-	}
-	else if (xVel < -xVelMax)
-	{
-		xVel = -xVelMax;
-	}
-
-	// Bounds check y Velcity
-	if (yVel > yVelMax)
-	{
-		yVel = yVelMax;
-	}
-	else if (yVel < -yVelMax)
-	{
-		yVel = -yVelMax;
-	}
-
-	// TODO(don): Update Position
-	xPos += xVel * deltaTime;
-	yPos += yVel * deltaTime;
-}
-
-void PhysicsComponent::resolveCollisions(ColliderComponent *c, int numberOfColliders)
-{
-	for (int index = 0; index < numberOfColliders; index++)
-	{
-		// Valid collision
-		// TODO(don): make damage team dependant
-		// NOTE(don): What actions do I need to take here?
-		//	(1) Adjust position based on collisions with solids
-		//	(2) Adjust position to move with mobile platform
-		//		(2.a) Need to know mobile platforms velocity...
-		//  (3) Tell owner about collision with opponent/opponentAttack
-		switch (c[index].getCategory())
+		if (activeForces[index].duration <= 0.f)
 		{
-			case ColliderCategory::enemy: // Fall Through
-			case ColliderCategory::enemyAttack:
-			{
-				if (collider->getCategory() == ColliderCategory::player)
-				{
-					// TODO(don): take damage
-				}
-			} break;
-			case ColliderCategory::immobile:
-			{
-				// TODO(don): change position back
-			} break;
-			case ColliderCategory::mobile:
-			{
-				// TODO(don): change position back, and move with collider?
-			} break;
-			case ColliderCategory::player: // Fall Through
-			case ColliderCategory::playerAttack:
-			{
-				if (collider->getCategory() == ColliderCategory::enemy)
-				{
-					// TODO(don): take damage
-				}
-			} break;
+			activeForces[index] = force;
+			result = true;
+			break;
 		}
 	}
 
-	// process all contact points
+	return result;
+}
+
+void PhysicsComponent::jump(float deltaTime)
+{
+	if (collider->isGrounded())
+	{
+		PhysicsForce inputJump;
+		inputJump.angle = 90.f;
+		inputJump.duration = 0.1f;
+		inputJump.magnitude = 300.f;
+		inputJump.decay = 0.f;
+		addForce(inputJump);
+	}
+	std::cout << "Told to jump with deltaTime: " << deltaTime << std::endl;
+};
+
+/*
+* Updates physics given a deltaTime in milliseconds
+*/
+void PhysicsComponent::update(float deltaTime)
+{
+	if (deltaTime > 1)
+	{
+		std::cout << "DeltaTime of :" << deltaTime << std::endl;
+	}
+
+	if (1)
+	{
+		// Check to apply gravity
+		if (gravity)
+		{
+			if (collider->isGrounded())
+			{
+				// Need the ground to stop acceleration due to gravity...
+				if (yVel > 0)
+				{
+					yAccel = 0;
+					yVel = 0;
+				}
+			}
+			else
+			{
+				// TODO(don): universal coordinate system
+				//yAccel += 98.f;
+				yVel += 80.f;
+				if (yVel > 800.f)
+				{
+					yVel = 800.f;
+				}
+			}
+		}
+
+		// 
+		for (int index = 0; index < MAX_PHYSICS_FORCES; index++)
+		{
+			if (activeForces[index].duration > 0.f)
+			{
+				// Apply accelerations due to this force
+				float totalForce = (activeForces[index].magnitude / mass);
+				// NOTE(don): Cos(angle) gives x component, Sin(angle) gives y component
+				float forceX = (float)((Cos(activeForces[index].angle)) * totalForce);
+				float forceY = (float)((Sin(activeForces[index].angle)) * totalForce);
+
+				if (abs(forceX) > 0.1f)
+				{
+					//xAccel += forceX;
+					xVel += forceX;// *deltaTime;
+				}
+				if (abs(forceY) > 0.1f)
+				{
+					//yAccel -= forceY;
+					yVel -= forceY;// *deltaTime;
+				}
+
+				// Decay the magnitude
+				activeForces[index].magnitude -= activeForces[index].decay * deltaTime;
+
+				// Reduce duration
+				activeForces[index].duration -= deltaTime;
+			}
+		}
+		// Update velocities
+		// Note(don): F = ma
+		// velocity = integral of acceleration dt
+		// v_i*t + (1/2)*a*t^2
+		// v_f = v_i + at
+		//xVel += xAccel * deltaTime;
+		//yVel += yAccel * deltaTime;
+
+		transform->changeX(xVel * deltaTime);
+		transform->changeY(yVel * deltaTime);
+	}
+	else
+	{
+		transform->changeY(0.98f * deltaTime);
+	}
 }

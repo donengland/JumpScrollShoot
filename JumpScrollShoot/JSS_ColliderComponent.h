@@ -67,6 +67,8 @@ private:
 	bool left;
 	bool above;
 	bool below;
+
+	bool grounded;
 };
 
 #endif

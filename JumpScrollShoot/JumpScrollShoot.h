@@ -18,6 +18,7 @@
 #include "JSS_InputComponent.h"
 #include "JSS_ColliderComponent.h"
 #include "JSS_GraphicsComponent.h"
+#include "JSS_PhysicsComponent.h"
 
 #define MAX_ENTITY_INPUTS 5
 
@@ -42,12 +43,14 @@ private:
 	InputComponent inputComponents[MAX_ENTITIES];
 	ColliderComponent colliderComponents[MAX_ENTITIES];
 	GraphicsComponent graphicsComponents[MAX_ENTITIES];
+	PhysicsComponent physicsComponents[MAX_ENTITIES];
 
 	int numEntities;
 	int numTransforms;
 	int numInputs;
 	int numColliders;
 	int numGraphics;
+	int numPhysics;
 
 	// TODO(don): Create world container for loading worlds
 	int worldSize;
@@ -57,6 +60,7 @@ private:
 	int camCenterY = 0;
 	int camHalfWidth = 320;
 	int camHalfHeight = 240;
+	float camSpeed;
 
 	bool init;
 };

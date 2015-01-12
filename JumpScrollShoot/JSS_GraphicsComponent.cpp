@@ -13,6 +13,7 @@
 
 GraphicsComponent::GraphicsComponent()
 {
+	entity = nullptr;
 	transform = nullptr;
 };
 
