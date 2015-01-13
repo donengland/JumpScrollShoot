@@ -22,6 +22,9 @@
 
 struct PhysicsForce
 {
+	// 
+	bool active;
+
 	// direction and magnitude of force
 	float angle;
 
@@ -53,30 +56,28 @@ public:
 	*/
 	bool addForce(PhysicsForce force);
 
-	void jump(float deltaTime);
-
 	/*
 	* Updates physics given a deltaTime in seconds
 	*/
 	void update(float deltaTime);
 
 	// TODO(don): add bounds checking for members with Max (velocity, acceleration)
-	void setTransform(TransformComponent *newTransform) { transform = newTransform; }
+	void setTransform(TransformComponent *newTransform);
 
-	float getXVel() { return xVel; }
-	float setXVel(float xVelocity) { xVel = xVelocity; }
+	float getXVel();
+	void setXVel(float xVelocity);
 
-	float getYVel() { return yVel; }
-	float setYVel(float yVelocity) { yVel = yVelocity; }
+	float getYVel();
+	void setYVel(float yVelocity);
 
-	float getXAccel() { return xAccel; }
-	float setXAccel(float xAcceleration) { xAccel = xAcceleration; }
+	float getXAccel();
+	void setXAccel(float xAcceleration);
 
-	float getYAccel() { return yAccel; }
-	float setYAccel(float yAcceleration) { yAccel = yAcceleration; }
+	float getYAccel();
+	void setYAccel(float yAcceleration);
 
-	float getMass() { return mass; }
-	float setMass(float Mass) { mass = Mass; }
+	float getMass();
+	void setMass(float Mass);
 
 private:
 	PhysicsForce activeForces[MAX_PHYSICS_FORCES];
@@ -91,6 +92,9 @@ private:
 	float yAccel;
 
 	float mass;
+
+	float jumpAmount;
+	bool jumping;
 
 	bool gravity;
 };

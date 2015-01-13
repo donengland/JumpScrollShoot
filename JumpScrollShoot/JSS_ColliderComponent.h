@@ -11,9 +11,10 @@
 
 #include "JSS_Entity.h"
 #include "JSS_TransformComponent.h"
+//#include "JSS_PhysicsComponent.h"
 
 // TODO(don): Change this type name
-enum class ColliderCategory { immobile, mobile, player, enemy, playerAttack, enemyAttack };
+enum class ColliderCategory { immobile, mobile, player, enemy, playerAttack, enemyAttack, trigger };
 
 class ColliderComponent : public Component
 {
@@ -31,6 +32,7 @@ public:
 	void resolveCollision(ColliderComponent &other);
 
 	bool isGrounded();
+	bool isColliding();
 
 	float getLocalX();
 	float getLocalY();
@@ -69,6 +71,7 @@ private:
 	bool below;
 
 	bool grounded;
+	bool colliding;
 };
 
 #endif

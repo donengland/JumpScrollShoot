@@ -30,15 +30,16 @@ class InputComponent : public Component
 {
 public:
 	InputComponent() { speed = 0.0f; }
-	InputComponent(Entity *inputEntity, TransformComponent *inputTransform, PhysicsComponent *inputPhysics, float Speed);
+	InputComponent(Entity *inputEntity, TransformComponent *inputTransform, float Speed);
 
 	void receive(ComponentMessage message);
 	void processInput(EntityInput input, float deltaTime);
 private:
 	Entity *entity;
 	TransformComponent *transform;
-	PhysicsComponent *physics;
 	float speed;
+
+	bool jumping;
 };
 
 #endif

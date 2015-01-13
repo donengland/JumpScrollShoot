@@ -8,11 +8,10 @@
 
 #include "JSS_InputComponent.h"
 
-InputComponent::InputComponent(Entity *inputEntity, TransformComponent *inputTransform, PhysicsComponent *inputPhysics, float Speed)
+InputComponent::InputComponent(Entity *inputEntity, TransformComponent *inputTransform, float Speed)
 {
 	entity = inputEntity;
 	transform = inputTransform;
-	physics = inputPhysics;
 
 	speed = Speed;
 };
@@ -61,7 +60,19 @@ void InputComponent::processInput(EntityInput input, float deltaTime)
 
 		if (input.jump)
 		{
-			physics->jump(deltaTime);
+			if (!jumping)
+			{
+				ComponentMessage msg;
+				msg.type = MessageType::Physics;
+				msg.key = MessageKey::Jump;
+				msg.value = 1000.f;
+				entity->broadcast(msg);
+				jumping = true;
+			}
+		}
+		else
+		{
+			jumping = false;
 		}
 	}
 };

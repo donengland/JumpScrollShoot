@@ -9,12 +9,15 @@
 #ifndef __JSS_COMPONENT_H_GUARD
 #define __JSS_COMPONENT_H_GUARD
 
-enum class MessageType { Health, Damage };
+// TODO(don): implement message union (see SDL_Event)
+enum class MessageType { Physics, Health };
+enum class MessageKey { Jump, Heal, Damage };
 
 struct ComponentMessage
 {
 	MessageType type;
-	void* content;
+	MessageKey key;
+	float value;
 };
 
 // NOTE(don): Component allows communication between concrete components and

@@ -18,6 +18,8 @@ PhysicsComponent::PhysicsComponent()
 
 	mass = 1.0f;
 
+	jumpAmount = 0.f;
+
 	gravity = false;
 
 	xVel = 0.f;
@@ -37,6 +39,8 @@ PhysicsComponent::PhysicsComponent(Entity *physicsEntity, TransformComponent *ph
 
 	gravity = Gravity;
 
+	jumpAmount = 1000.0f;
+
 	xVel = 0.f;
 	yVel = 0.f;
 
@@ -46,7 +50,20 @@ PhysicsComponent::PhysicsComponent(Entity *physicsEntity, TransformComponent *ph
 
 void PhysicsComponent::receive(ComponentMessage message)
 {
-	
+	if (message.type == MessageType::Physics)
+	{
+		switch (message.key)
+		{
+			case MessageKey::Jump:
+			{
+				if (collider->isGrounded())
+				{
+					jumpAmount = message.value;
+					jumping = true;
+				}
+			}
+		}
+	}
 };
 
 // NOTE(don): possible problem with ticks on applying forces (on collision)
@@ -69,98 +86,110 @@ bool PhysicsComponent::addForce(PhysicsForce force)
 	return result;
 }
 
-void PhysicsComponent::jump(float deltaTime)
-{
-	if (collider->isGrounded())
-	{
-		PhysicsForce inputJump;
-		inputJump.angle = 90.f;
-		inputJump.duration = 0.1f;
-		inputJump.magnitude = 300.f;
-		inputJump.decay = 0.f;
-		addForce(inputJump);
-	}
-	std::cout << "Told to jump with deltaTime: " << deltaTime << std::endl;
-};
-
 /*
 * Updates physics given a deltaTime in milliseconds
 */
 void PhysicsComponent::update(float deltaTime)
 {
-	if (deltaTime > 1)
+	// Check to apply gravity
+	if (gravity)
 	{
-		std::cout << "DeltaTime of :" << deltaTime << std::endl;
-	}
-
-	if (1)
-	{
-		// Check to apply gravity
-		if (gravity)
+		if (collider->isGrounded())
 		{
-			if (collider->isGrounded())
+			// Need the ground to stop acceleration due to gravity...
+			if (yVel > 0.f)
 			{
-				// Need the ground to stop acceleration due to gravity...
-				if (yVel > 0)
-				{
-					yAccel = 0;
-					yVel = 0;
-				}
+				yAccel = 0.f;
+				yVel = 0.f;
 			}
-			else
+
+			if (xVel != 0.f)
 			{
-				// TODO(don): universal coordinate system
-				//yAccel += 98.f;
-				yVel += 80.f;
-				if (yVel > 800.f)
-				{
-					yVel = 800.f;
-				}
+				xVel = 0.f;
 			}
 		}
-
-		// 
-		for (int index = 0; index < MAX_PHYSICS_FORCES; index++)
+		else
 		{
-			if (activeForces[index].duration > 0.f)
+			// TODO(don): universal coordinate system
+			yAccel = 98.f;
+			//yVel += 80.f;
+			if (yVel > 800.f)
 			{
-				// Apply accelerations due to this force
-				float totalForce = (activeForces[index].magnitude / mass);
-				// NOTE(don): Cos(angle) gives x component, Sin(angle) gives y component
-				float forceX = (float)((Cos(activeForces[index].angle)) * totalForce);
-				float forceY = (float)((Sin(activeForces[index].angle)) * totalForce);
-
-				if (abs(forceX) > 0.1f)
-				{
-					//xAccel += forceX;
-					xVel += forceX;// *deltaTime;
-				}
-				if (abs(forceY) > 0.1f)
-				{
-					//yAccel -= forceY;
-					yVel -= forceY;// *deltaTime;
-				}
-
-				// Decay the magnitude
-				activeForces[index].magnitude -= activeForces[index].decay * deltaTime;
-
-				// Reduce duration
-				activeForces[index].duration -= deltaTime;
+				yVel = 800.f;
 			}
 		}
-		// Update velocities
-		// Note(don): F = ma
-		// velocity = integral of acceleration dt
-		// v_i*t + (1/2)*a*t^2
-		// v_f = v_i + at
-		//xVel += xAccel * deltaTime;
-		//yVel += yAccel * deltaTime;
-
-		transform->changeX(xVel * deltaTime);
-		transform->changeY(yVel * deltaTime);
 	}
-	else
+	if (jumping)
 	{
-		transform->changeY(0.98f * deltaTime);
+		jumping = false;
+		yAccel -= jumpAmount;
+
+		// NOTE(don): example jump input below
+		/*
+		PhysicsForce inputJump;
+		inputJump.angle = 90.f;
+		inputJump.duration = deltaTime;
+		inputJump.magnitude = 1000.f;
+		inputJump.decay = 0.f;
+		addForce(inputJump);
+		*/
 	}
+
+	// 
+	for (int index = 0; index < MAX_PHYSICS_FORCES; index++)
+	{
+		if (activeForces[index].duration > 0.f)
+		{
+			// Apply accelerations due to this force
+			float totalForce = (activeForces[index].magnitude / mass);
+			// NOTE(don): Cos(angle) gives x component, Sin(angle) gives y component
+			float forceX = (float)((Cos(activeForces[index].angle)) * totalForce);
+			float forceY = (float)((Sin(activeForces[index].angle)) * totalForce);
+
+			if (abs(forceX) > 0.1f)
+			{
+				xAccel += forceX;
+				//xVel += forceX;// *deltaTime;
+			}
+			if (abs(forceY) > 0.1f)
+			{
+				// NOTE(don): using flipped coordinate on y
+				yAccel -= forceY;
+				//yVel -= forceY;// *deltaTime;
+			}
+
+			// Decay the magnitude
+			activeForces[index].magnitude -= activeForces[index].decay * deltaTime;
+
+			// Reduce duration
+			activeForces[index].duration -= deltaTime;
+		}
+	}
+	// Update velocities
+	// Note(don): F = ma
+	// velocity = integral of acceleration dt
+	// v_i*t + (1/2)*a*t^2
+	// v_f = v_i + at
+	xVel += xAccel;// *deltaTime;
+	yVel += yAccel;// *deltaTime;
+
+	transform->changeX(xVel * deltaTime);
+	transform->changeY(yVel * deltaTime); 
 }
+
+void PhysicsComponent::setTransform(TransformComponent *newTransform) { transform = newTransform; }
+
+float PhysicsComponent::getXVel() { return xVel; }
+void PhysicsComponent::setXVel(float xVelocity) { xVel = xVelocity; }
+
+float PhysicsComponent::getYVel() { return yVel; }
+void PhysicsComponent::setYVel(float yVelocity) { yVel = yVelocity; }
+
+float PhysicsComponent::getXAccel() { return xAccel; }
+void PhysicsComponent::setXAccel(float xAcceleration) { xAccel = xAcceleration; }
+
+float PhysicsComponent::getYAccel() { return yAccel; }
+void PhysicsComponent::setYAccel(float yAcceleration) { yAccel = yAcceleration; }
+
+float PhysicsComponent::getMass() { return mass; }
+void PhysicsComponent::setMass(float Mass) { mass = Mass; }

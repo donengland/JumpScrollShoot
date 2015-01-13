@@ -24,7 +24,6 @@ ColliderComponent::ColliderComponent(Entity *ColliderEntity,
 {
 	entity = ColliderEntity;
 	transform = Transform;
-
 	category = Category;
 
 	x = localX;
@@ -38,6 +37,7 @@ ColliderComponent::ColliderComponent(Entity *ColliderEntity,
 	above = false;
 	below = false;
 	grounded = false;
+	colliding = false;
 };
 
 void ColliderComponent::resetCollisions()
@@ -47,23 +47,15 @@ void ColliderComponent::resetCollisions()
 	above = false;
 	below = false;
 	grounded = false;
+	colliding = false;
 }
 void ColliderComponent::resolveCollision(ColliderComponent &other)
 {
 	// We had a collision with another Collider
+	colliding = true;
 	//if (category == ColliderCategory::player)
 	if (other.category == ColliderCategory::immobile)
 	{
-		/*
-		float minX = transform->getX() + x;
-		float maxX = transform->getX() + x + width;
-		float minY = transform->getY() + y;
-		float maxY = transform->getY() + y + height;
-		std::cout << "Other X(" << other.getMinX() << "," << other.getMaxX() << ") " <<
-			"Other Y(" << other.getMinY() << "," << other.getMaxY() << ") " << std::endl;
-		std::cout << "My X(" << getMinX() << "," << getMaxX() << ") " <<
-			"My Y(" << getMinY() << "," << getMaxY() << ") " << std::endl;
-		*/
 		// Flag for possibly being completely inside the other collider
 		bool inside = false;
 		float changeX = 100000.0f;
@@ -141,6 +133,10 @@ bool ColliderComponent::isGrounded()
 	return grounded;
 }
 
+bool ColliderComponent::isColliding()
+{
+	return colliding;
+}
 void ColliderComponent::receive(ComponentMessage message)
 {
 

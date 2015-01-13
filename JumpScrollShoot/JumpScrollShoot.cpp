@@ -82,7 +82,7 @@ void JumpScrollShoot::GameInit()
 		numPhysics++;
 
 		// InputComponent created and copied over element 0 player one
-		InputComponent playerInput(&entities[0], &transformComponents[0], &physicsComponents[0], 300.f);
+		InputComponent playerInput(&entities[0], &transformComponents[0], 300.f);
 		inputComponents[0] = playerInput;
 		numInputs++;
 
@@ -233,22 +233,22 @@ void JumpScrollShoot::GameLoop(EntityInput* input, int NumInputs, uint32 DeltaTi
 
 		// Move camera over player
 		// TODO(don): Use averaged player position for camera center point		
-		camCenterX = (int)transformComponents[0].getX();
-		float targetY = (int)transformComponents[0].getY();
+		camCenterX = (int)(transformComponents[0].getX());
+		float targetY = transformComponents[0].getY();
 		if (camCenterY < targetY)
 		{
-			camCenterY += camSpeed;
+			camCenterY += (int)camSpeed;
 			if (camCenterY > targetY)
 			{
-				camCenterY = targetY;
+				camCenterY = (int)targetY;
 			}
 		}
 		else
 		{
-			camCenterY -= camSpeed;
+			camCenterY -= (int)camSpeed;
 			if (camCenterY < targetY)
 			{
-				camCenterY = targetY;
+				camCenterY = (int)targetY;
 			}
 		}
 
