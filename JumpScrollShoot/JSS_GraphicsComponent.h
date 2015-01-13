@@ -11,7 +11,6 @@
 
 #include <sdl.h>
 #include "JSS_Entity.h"
-#include "JSS_TransformComponent.h"
 
 typedef uint8_t uint8;
 
@@ -23,7 +22,6 @@ class GraphicsComponent : public Component
 public:
 	GraphicsComponent();
 	GraphicsComponent(Entity *GraphicsEntity,
-					  TransformComponent *Transform,
 					  uint8 Red = 0x00, uint8 Green = 0x00, uint8 Blue = 0x00, uint8 Alpha = 0xFF,
 					  float Width = 0.0f, float Height = 0.0f,
 					  float localX = 0.0f, float localY = 0.0f);
@@ -54,7 +52,6 @@ public:
 
 private:
 	Entity *entity;
-	TransformComponent *transform;
 
 	float x, y;
 

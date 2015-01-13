@@ -13,17 +13,15 @@
 
 ColliderComponent::ColliderComponent()
 {
-	transform = nullptr;
+	entity = nullptr;
 };
 
 ColliderComponent::ColliderComponent(Entity *ColliderEntity,
-									 TransformComponent *Transform,
 									 float localX, float localY,
 									 float Width, float Height,
 									 ColliderCategory Category)
 {
 	entity = ColliderEntity;
-	transform = Transform;
 	category = Category;
 
 	x = localX;
@@ -114,11 +112,11 @@ void ColliderComponent::resolveCollision(ColliderComponent &other)
 		}		
 		if (abs(changeX) < abs(changeY))
 		{
-			transform->changeX(changeX);
+			entity->changeX(changeX);
 		}
 		else
 		{
-			transform->changeY(changeY);
+			entity->changeY(changeY);
 		}
 
 		if (below && (abs(getMaxY() - other.getMinY()) < .5f))
@@ -155,23 +153,23 @@ void ColliderComponent::setHeight(float Height) { height = Height; }
 
 float ColliderComponent::getMinX()
 {
-	float result = transform->getX() + x;
+	float result = entity->getX() + x;
 	return result;
 };
 float ColliderComponent::getMaxX()
 {
-	float result = transform->getX() + x + width;
+	float result = entity->getX() + x + width;
 	return result;
 };
 
 float ColliderComponent::getMinY()
 {
-	float result = transform->getY() + y;
+	float result = entity->getY() + y;
 	return result;
 };
 float ColliderComponent::getMaxY()
 {
-	float result = transform->getY() + y + height;
+	float result = entity->getY() + y + height;
 	return result;
 };
 

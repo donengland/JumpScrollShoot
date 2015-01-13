@@ -8,10 +8,9 @@
 
 #include "JSS_InputComponent.h"
 
-InputComponent::InputComponent(Entity *inputEntity, TransformComponent *inputTransform, float Speed)
+InputComponent::InputComponent(Entity *inputEntity, float Speed)
 {
 	entity = inputEntity;
-	transform = inputTransform;
 
 	speed = Speed;
 };
@@ -23,34 +22,38 @@ void InputComponent::receive(ComponentMessage message)
 
 void InputComponent::processInput(EntityInput input, float deltaTime)
 {
-	if (transform)
+	if (entity)
 	{
 		float changeAmount = speed * deltaTime;
+
+		// NOTE(don): If diagonal movement is allowed, don't allow speed bonus
+		/*
 		if ((input.right || input.left) && (input.up || input.down))
 		{
 			// Don't allow speed to increase when moving diagonally
 			changeAmount *= 0.7071f;
 		}
+		*/
 		if (input.right)
 		{
-			transform->changeX(changeAmount);
+			entity->changeX(changeAmount);
 		}
 
 		if (input.left)
 		{
-			transform->changeX(-changeAmount);
+			entity->changeX(-changeAmount);
 		}
 
 		// TODO(don): should up be global coordinate up, not screen space?
 		// NOTE(don): rendering cares about screen space
 		if (input.up)
 		{
-			//transform->changeY(-changeAmount);
+			//entity->changeY(-changeAmount);
 		}
 
 		if (input.down)
 		{
-			//transform->changeY(+changeAmount);
+			//entity->changeY(+changeAmount);
 		}
 
 		if (input.shoot)

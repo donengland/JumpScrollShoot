@@ -13,7 +13,6 @@ PhysicsComponent::PhysicsComponent()
 {
 	activeForces[MAX_PHYSICS_FORCES] = {};
 	entity = nullptr;
-	transform = nullptr;
 	collider = nullptr;
 
 	mass = 1.0f;
@@ -28,11 +27,10 @@ PhysicsComponent::PhysicsComponent()
 	xAccel = 0.f;
 	yAccel = 0.f;
 }
-PhysicsComponent::PhysicsComponent(Entity *physicsEntity, TransformComponent *physicsTransform, ColliderComponent *physicsCollider, float Mass, bool Gravity)
+PhysicsComponent::PhysicsComponent(Entity *physicsEntity, ColliderComponent *physicsCollider, float Mass, bool Gravity)
 {
 	activeForces[MAX_PHYSICS_FORCES] = {};
 	entity = physicsEntity;
-	transform = physicsTransform;
 	collider = physicsCollider;
 
 	mass = Mass;
@@ -96,7 +94,7 @@ void PhysicsComponent::update(float deltaTime)
 	{
 		if (collider->isGrounded())
 		{
-			// Need the ground to stop acceleration due to gravity...
+			// NOTE(don): Need the ground to stop positive yvelocity
 			if (yVel > 0.f)
 			{
 				yAccel = 0.f;
@@ -112,7 +110,6 @@ void PhysicsComponent::update(float deltaTime)
 		{
 			// TODO(don): universal coordinate system
 			yAccel = 98.f;
-			//yVel += 80.f;
 			if (yVel > 800.f)
 			{
 				yVel = 800.f;
@@ -149,13 +146,11 @@ void PhysicsComponent::update(float deltaTime)
 			if (abs(forceX) > 0.1f)
 			{
 				xAccel += forceX;
-				//xVel += forceX;// *deltaTime;
 			}
 			if (abs(forceY) > 0.1f)
 			{
 				// NOTE(don): using flipped coordinate on y
 				yAccel -= forceY;
-				//yVel -= forceY;// *deltaTime;
 			}
 
 			// Decay the magnitude
@@ -170,14 +165,12 @@ void PhysicsComponent::update(float deltaTime)
 	// velocity = integral of acceleration dt
 	// v_i*t + (1/2)*a*t^2
 	// v_f = v_i + at
-	xVel += xAccel;// *deltaTime;
-	yVel += yAccel;// *deltaTime;
+	xVel += xAccel;
+	yVel += yAccel;
 
-	transform->changeX(xVel * deltaTime);
-	transform->changeY(yVel * deltaTime); 
+	entity->changeX(xVel * deltaTime);
+	entity->changeY(yVel * deltaTime); 
 }
-
-void PhysicsComponent::setTransform(TransformComponent *newTransform) { transform = newTransform; }
 
 float PhysicsComponent::getXVel() { return xVel; }
 void PhysicsComponent::setXVel(float xVelocity) { xVel = xVelocity; }

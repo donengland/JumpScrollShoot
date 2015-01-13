@@ -14,7 +14,6 @@
 #include <math.h>
 #include "JSS_Entity.h"
 #include "JSS_Component.h"
-#include "JSS_TransformComponent.h"
 #include "JSS_ColliderComponent.h"
 
 #define Cos(th) cos(3.1415926/180*(th))
@@ -44,7 +43,7 @@ class PhysicsComponent : public Component
 {
 public:
 	PhysicsComponent();
-	PhysicsComponent(Entity *physicsEntity, TransformComponent *physicsTransform, ColliderComponent *physicsCollider, float Mass = 1.f, bool Gravity = true);
+	PhysicsComponent(Entity *physicsEntity, ColliderComponent *physicsCollider, float Mass = 1.f, bool Gravity = true);
 	/*
 	 * Process message from associated entity
 	*/
@@ -60,9 +59,6 @@ public:
 	* Updates physics given a deltaTime in seconds
 	*/
 	void update(float deltaTime);
-
-	// TODO(don): add bounds checking for members with Max (velocity, acceleration)
-	void setTransform(TransformComponent *newTransform);
 
 	float getXVel();
 	void setXVel(float xVelocity);
@@ -82,7 +78,6 @@ public:
 private:
 	PhysicsForce activeForces[MAX_PHYSICS_FORCES];
 	Entity *entity;
-	TransformComponent *transform;
 	ColliderComponent *collider;
 
 	float xVel;

@@ -14,17 +14,14 @@
 GraphicsComponent::GraphicsComponent()
 {
 	entity = nullptr;
-	transform = nullptr;
 };
 
 GraphicsComponent::GraphicsComponent(Entity *GraphicsEntity,
-									 TransformComponent *Transform,
 									 uint8 Red, uint8 Green, uint8 Blue, uint8 Alpha,
 									 float Width, float Height,
 									 float localX, float localY)
 {
 	entity = GraphicsEntity;
-	transform = Transform;
 
 	x = localX;
 	y = localY;
@@ -71,22 +68,22 @@ void GraphicsComponent::setHeight(float Height) { height = Height; }
 
 float GraphicsComponent::getMinX()
 {
-	float result = transform->getX() + x;
+	float result = entity->getX() + x;
 	return result;
 };
 float GraphicsComponent::getMaxX()
 {
-	float result = transform->getX() + x + width;
+	float result = entity->getX() + x + width;
 	return result;
 };
 
 float GraphicsComponent::getMinY()
 {
-	float result = transform->getY() + y;
+	float result = entity->getY() + y;
 	return result;
 };
 float GraphicsComponent::getMaxY()
 {
-	float result = transform->getY() + y + height;
+	float result = entity->getY() + y + height;
 	return result;
 };

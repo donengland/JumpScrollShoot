@@ -11,7 +11,6 @@
 JumpScrollShoot::JumpScrollShoot()
 {
 	numEntities = 0;
-	numTransforms = 0;
 	numInputs = 0;
 	numColliders = 0;
 	numGraphics = 0;
@@ -30,23 +29,18 @@ JumpScrollShoot::JumpScrollShoot()
 
 void JumpScrollShoot::CreateBlock(float x, float y, float w, float h, uint8 red, uint8 green, uint8 blue, uint8 alpha)
 {
-	Entity block;
+	Entity block(x, y);
 	entities[numEntities] = block;
 	numEntities++;
 
-	TransformComponent  transform(x, y);
-	transformComponents[numTransforms] = transform;
-	numTransforms++;
-
-	ColliderComponent collider(&entities[numEntities - 1], &transformComponents[numTransforms - 1], 0.f, 0.f, w, h);
+	ColliderComponent collider(&entities[numEntities - 1], 0.f, 0.f, w, h);
 	colliderComponents[numColliders] = collider;
 	numColliders++;
 
-	GraphicsComponent graphics(&entities[numEntities - 1], &transformComponents[numTransforms - 1], red, green, blue, alpha, w, h);
+	GraphicsComponent graphics(&entities[numEntities - 1], red, green, blue, alpha, w, h);
 	graphicsComponents[numGraphics] = graphics;
 	numGraphics++;
 
-	entities[numEntities - 1].addComponent(&transformComponents[numTransforms - 1]);
 	entities[numEntities - 1].addComponent(&colliderComponents[numColliders - 1]);
 	entities[numEntities - 1].addComponent(&graphicsComponents[numColliders - 1]);
 }
@@ -56,38 +50,32 @@ void JumpScrollShoot::GameInit()
 	// Create player entity
 	{
 		// TODO(don): reserve first 4 entities for players?
-		Entity player;
+		Entity player(100.f, 300.f);
 		entities[0] = player;
 		numEntities++;
 
-		// Transform component created and copied over element 0 player one
-		TransformComponent playerTransform(100, 50);
-		transformComponents[0] = playerTransform;
-		numTransforms++;
-
 		// TODO(don): Resolve width and height at a higher level
 		// ColliderComponent created and copied over element 0 player one
-		ColliderComponent playerCollider(&entities[0], &transformComponents[0], 0.f, 0.f, 50.f, 50.f, ColliderCategory::player);
+		ColliderComponent playerCollider(&entities[0], 0.f, 0.f, 50.f, 50.f, ColliderCategory::player);
 		colliderComponents[0] = playerCollider;
 		numColliders++;
 
 		// GraphicsComponent created and copied over element 0 player one
-		GraphicsComponent playerGraphics(&entities[0], &transformComponents[0], 0x00, 0x00, 0xFF, 0xFF, 50.f, 50.f);
+		GraphicsComponent playerGraphics(&entities[0], 0x00, 0x00, 0xFF, 0xFF, 50.f, 50.f);
 		graphicsComponents[0] = playerGraphics;
 		numGraphics++;
 
 		// PhysicsComponent created and copied over element 0 player one
-		PhysicsComponent playerPhysics(&entities[0], &transformComponents[0], &colliderComponents[0]);
+		PhysicsComponent playerPhysics(&entities[0], &colliderComponents[0]);
 		physicsComponents[0] = playerPhysics;
 		numPhysics++;
 
 		// InputComponent created and copied over element 0 player one
-		InputComponent playerInput(&entities[0], &transformComponents[0], 300.f);
+		InputComponent playerInput(&entities[0], 300.f);
 		inputComponents[0] = playerInput;
 		numInputs++;
 
 		// Tell entity[0] player one about components
-		entities[0].addComponent(&transformComponents[0]);
 		entities[0].addComponent(&inputComponents[0]);
 		entities[0].addComponent(&colliderComponents[0]);
 		entities[0].addComponent(&graphicsComponents[0]);
@@ -99,21 +87,18 @@ void JumpScrollShoot::GameInit()
 	// NOTE(don): world entity for initial colliderComponent tests
 	// Create World Entity
 	{
-		Entity world;
+		Entity world(0.f, 0.f);
 		entities[1] = world;
 		numEntities++;
 
 		// NOTE(don): Test different world sizes
 		worldSize = 1000;
-		TransformComponent worldTransform(0.f, 0.f);
-		transformComponents[1] = worldTransform;
-		numTransforms++;
 
 		// Add colliders on boundaries
-		ColliderComponent worldLeftCollider(&entities[1], &transformComponents[1], (float)(-worldSize), 0.f, (float)(worldSize), (float)(worldSize));
-		ColliderComponent worldRightCollider(&entities[1], &transformComponents[1], (float)(worldSize), 0.f, (float)(worldSize), (float)(worldSize));
-		ColliderComponent worldTopCollider(&entities[1], &transformComponents[1], (float)(-worldSize), (float)(-worldSize), (float)((worldSize * 3)), (float)(worldSize));
-		ColliderComponent worldBottomCollider(&entities[1], &transformComponents[1], (float)(-worldSize), (float)(worldSize), (float)((worldSize * 3)), (float)(worldSize));
+		ColliderComponent worldLeftCollider(&entities[1], (float)(-worldSize), 0.f, (float)(worldSize), (float)(worldSize));
+		ColliderComponent worldRightCollider(&entities[1], (float)(worldSize), 0.f, (float)(worldSize), (float)(worldSize));
+		ColliderComponent worldTopCollider(&entities[1], (float)(-worldSize), (float)(-worldSize), (float)((worldSize * 3)), (float)(worldSize));
+		ColliderComponent worldBottomCollider(&entities[1], (float)(-worldSize), (float)(worldSize), (float)((worldSize * 3)), (float)(worldSize));
 		colliderComponents[1] = worldLeftCollider;
 		colliderComponents[2] = worldRightCollider;
 		colliderComponents[3] = worldTopCollider;
@@ -121,10 +106,10 @@ void JumpScrollShoot::GameInit()
 		numColliders += 4;
 
 		// Add Black Graphics Components for world edges
-		GraphicsComponent worldLeftGraphics(&entities[1], &transformComponents[1], 0x00, 0x00, 0x00, 0xFF, (float)(worldSize), (float)(worldSize), (float)(-worldSize), 0.f);
-		GraphicsComponent worldRightGraphics(&entities[1], &transformComponents[1], 0x00, 0x00, 0x00, 0xFF, (float)(worldSize), (float)(worldSize), (float)(worldSize), 0.f);
-		GraphicsComponent worldTopGraphics(&entities[1], &transformComponents[1], 0x00, 0x00, 0x00, 0xFF, (float)((worldSize * 3)), (float)(worldSize), (float)(-worldSize), (float)(-worldSize));
-		GraphicsComponent worldBottomGraphics(&entities[1], &transformComponents[1], 0x00, 0x00, 0x00, 0xFF, (float)((worldSize * 3)), (float)(worldSize), (float)(-worldSize), (float)(worldSize));
+		GraphicsComponent worldLeftGraphics(&entities[1], 0x00, 0x00, 0x00, 0xFF, (float)(worldSize), (float)(worldSize), (float)(-worldSize), 0.f);
+		GraphicsComponent worldRightGraphics(&entities[1], 0x00, 0x00, 0x00, 0xFF, (float)(worldSize), (float)(worldSize), (float)(worldSize), 0.f);
+		GraphicsComponent worldTopGraphics(&entities[1], 0x00, 0x00, 0x00, 0xFF, (float)((worldSize * 3)), (float)(worldSize), (float)(-worldSize), (float)(-worldSize));
+		GraphicsComponent worldBottomGraphics(&entities[1], 0x00, 0x00, 0x00, 0xFF, (float)((worldSize * 3)), (float)(worldSize), (float)(-worldSize), (float)(worldSize));
 		graphicsComponents[1] = worldLeftGraphics;
 		graphicsComponents[2] = worldRightGraphics;
 		graphicsComponents[3] = worldTopGraphics;
@@ -132,7 +117,6 @@ void JumpScrollShoot::GameInit()
 		numGraphics += 4;
 
 		// Tell world about components
-		entities[1].addComponent(&transformComponents[1]);
 		entities[1].addComponent(&colliderComponents[1]);
 		entities[1].addComponent(&colliderComponents[2]);
 		entities[1].addComponent(&colliderComponents[3]);
@@ -145,11 +129,11 @@ void JumpScrollShoot::GameInit()
 
 	// create temp blocks
 	{
-		CreateBlock(600.f, 300.f, 100.f, 100.f, 0x00, 0xFF, 0xFF);
-		CreateBlock(500.f, 400.f, 300.f, 100.f, 0x00, 0xFF, 0xFF);
-		CreateBlock(400.f, 500.f, 500.f, 100.f, 0x00, 0xFF, 0xFF);
-		CreateBlock(300.f, 600.f, 700.f, 100.f, 0x00, 0xFF, 0xFF);
-		CreateBlock(0.f, 700.f, (float)(worldSize), 50.f, 0xFF, 0xFF, 0x00);
+		CreateBlock(600.f, (float)(worldSize - 500.f), 100.f, 100.f, 0x00, 0xFF, 0xFF);
+		CreateBlock(500.f, (float)(worldSize - 400.f), 300.f, 100.f, 0x00, 0xFF, 0xFF);
+		CreateBlock(400.f, (float)(worldSize - 300.f), 500.f, 100.f, 0x00, 0xFF, 0xFF);
+		CreateBlock(300.f, (float)(worldSize - 200.f), 700.f, 100.f, 0x00, 0xFF, 0xFF);
+		CreateBlock(0.f, (float)(worldSize - 100.f), (float)(worldSize), 50.f, 0x00, 0xAA, 0xAA);
 	}
 
 	init = true;
@@ -172,11 +156,14 @@ void JumpScrollShoot::GameLoop(EntityInput* input, int NumInputs, uint32 DeltaTi
 	}
 	else
 	{
+		// TODO(don): map input to appropriate player inputComponent
 		// Process all inputs
-		for (int index = 0; index < numInputs; index++)
-		{
-			inputComponents[index].processInput(input[1], deltaTime);
-		}
+		//for (int index = 0; index < numInputs; index++)
+		//{
+			// NOTE(don): process inputs according to a player to input map
+			inputComponents[0].processInput(input[0], deltaTime);
+			inputComponents[0].processInput(input[1], deltaTime);
+		//}
 
 		// Process all forces
 		// TODO(don): implement physics components, apply all forces
@@ -233,8 +220,8 @@ void JumpScrollShoot::GameLoop(EntityInput* input, int NumInputs, uint32 DeltaTi
 
 		// Move camera over player
 		// TODO(don): Use averaged player position for camera center point		
-		camCenterX = (int)(transformComponents[0].getX());
-		float targetY = transformComponents[0].getY();
+		camCenterX = (int)(entities[0].getX());
+		float targetY = entities[0].getY();
 		if (camCenterY < targetY)
 		{
 			camCenterY += (int)camSpeed;

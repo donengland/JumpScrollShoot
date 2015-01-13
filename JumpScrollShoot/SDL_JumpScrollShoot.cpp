@@ -94,7 +94,7 @@ bool handleEvent(SDL_Event *event, EntityInput *input, int numInputs, Screen *sc
 				} break;
 				case SDLK_SPACE:
 				{
-					//input[0].jump += 1;
+					input[0].jump += 1;
 				} break;
 			}
 		} break;
@@ -131,7 +131,7 @@ bool handleEvent(SDL_Event *event, EntityInput *input, int numInputs, Screen *sc
 				} break;
 				case SDLK_SPACE:
 				{
-					//input[0].jump = 0;
+					input[0].jump = 0;
 				} break;
 			}
 		}

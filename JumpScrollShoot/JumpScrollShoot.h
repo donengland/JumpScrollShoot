@@ -14,7 +14,6 @@
 #include <iostream>
 #include <vector>
 #include "JSS_Entity.h"
-#include "JSS_TransformComponent.h"
 #include "JSS_InputComponent.h"
 #include "JSS_ColliderComponent.h"
 #include "JSS_GraphicsComponent.h"
@@ -39,14 +38,12 @@ private:
 	void CreateBlock(float x, float y, float w, float h, uint8 red = 0x00, uint8 green = 0x00, uint8 blue = 0x00, uint8 alpha = 0xFF);
 
 	Entity entities[MAX_ENTITIES];
-	TransformComponent transformComponents[MAX_ENTITIES];
 	InputComponent inputComponents[MAX_ENTITIES];
 	ColliderComponent colliderComponents[MAX_ENTITIES];
 	GraphicsComponent graphicsComponents[MAX_ENTITIES];
 	PhysicsComponent physicsComponents[MAX_ENTITIES];
 
 	int numEntities;
-	int numTransforms;
 	int numInputs;
 	int numColliders;
 	int numGraphics;

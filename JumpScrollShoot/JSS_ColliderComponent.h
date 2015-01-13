@@ -10,8 +10,6 @@
 #define JSS_COLLIDER_COMPONENT_H_GUARD
 
 #include "JSS_Entity.h"
-#include "JSS_TransformComponent.h"
-//#include "JSS_PhysicsComponent.h"
 
 // TODO(don): Change this type name
 enum class ColliderCategory { immobile, mobile, player, enemy, playerAttack, enemyAttack, trigger };
@@ -21,7 +19,6 @@ class ColliderComponent : public Component
 public:
 	ColliderComponent();
 	ColliderComponent(Entity *ColliderEntity,
-					  TransformComponent *Transform,
 					  float localX = 0.0f, float localY = 0.0f,
 					  float Width = 0.0f, float Height = 0.0f,
 					  ColliderCategory Category = ColliderCategory::immobile);
@@ -57,7 +54,6 @@ public:
 
 private:
 	Entity *entity;
-	TransformComponent *transform;
 	ColliderCategory category;
 	float x;
 	float y;

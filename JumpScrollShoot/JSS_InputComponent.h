@@ -11,7 +11,6 @@
 
 #include "JSS_Entity.h"
 #include "JSS_Component.h"
-#include "JSS_TransformComponent.h"
 #include "JSS_PhysicsComponent.h"
 
 struct EntityInput
@@ -30,13 +29,12 @@ class InputComponent : public Component
 {
 public:
 	InputComponent() { speed = 0.0f; }
-	InputComponent(Entity *inputEntity, TransformComponent *inputTransform, float Speed);
+	InputComponent(Entity *inputEntity, float Speed);
 
 	void receive(ComponentMessage message);
 	void processInput(EntityInput input, float deltaTime);
 private:
 	Entity *entity;
-	TransformComponent *transform;
 	float speed;
 
 	bool jumping;
