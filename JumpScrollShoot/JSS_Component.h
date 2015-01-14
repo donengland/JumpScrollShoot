@@ -10,7 +10,7 @@
 #define __JSS_COMPONENT_H_GUARD
 
 // TODO(don): implement message union (see SDL_Event)
-enum class MessageType { Physics, Health };
+enum class MessageType { Instantiate, Physics, Health };
 enum class MessageKey { Jump, Heal, Damage };
 
 struct ComponentMessage
@@ -21,7 +21,7 @@ struct ComponentMessage
 };
 
 // NOTE(don): Component allows communication between concrete components and
-// the concrete "owning" entity
+// the concrete entity that points to it
 class Component
 {
 public:

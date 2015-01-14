@@ -12,14 +12,16 @@
 #include <vector>
 #include <algorithm>
 
+#include "JSS_IEntityManager.h"
 #include "JSS_Component.h"
 
-// NOTE(don): Entity contains pointers to components that hold it's state.
+// NOTE(don): Entity contains pointers to components that hold most of it's state.
 class Entity
 {
 public:
 	Entity();
-	Entity(float X, float Y);
+
+	Entity(IEntityManager *m, float X, float Y);
 
 	void broadcast(ComponentMessage message);
 	void addComponent(Component *c);
@@ -34,22 +36,27 @@ public:
 	void changeX(float deltaX);
 	void changeY(float deltaY);
 
+	void setId(int id);
 	void setInputId(int id);
 	void setGraphicsId(int id);
 	void setColliderId(int id);
 	void setPhysicsId(int id);
 
-	int getInputId(int id);
-	int getGraphicsId(int id);
-	int getColliderId(int id);
-	int getPhysicsId(int id);
+	int getId();
+	int getInputId();
+	int getGraphicsId();
+	int getColliderId();
+	int getPhysicsId();
 
 private:
+	IEntityManager *manager;
 	float x, y;
+	int myId;
 	int inputIndex;
 	int graphicsIndex;
 	int colliderIndex;
 	int physicsIndex;
+	// TODO(don): change to array?
 	std::vector<Component*> myComponents;
 };
 

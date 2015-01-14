@@ -8,11 +8,14 @@
 
 #include "JSS_InputComponent.h"
 
-InputComponent::InputComponent(Entity *inputEntity, float Speed)
+InputComponent::InputComponent(Entity *inputEntity, float Speed, float FireRate)
 {
 	entity = inputEntity;
 
 	speed = Speed;
+
+	firing = 0.f;
+	fireRate = FireRate;
 };
 
 void InputComponent::receive(ComponentMessage message)
@@ -58,13 +61,23 @@ void InputComponent::processInput(EntityInput input, float deltaTime)
 
 		if (input.shoot)
 		{
-			printf("Shoot!\n");
+			if (firing < 0.f)
+			{
+				printf("Shoot!\n");
+				ComponentMessage msg;
+				msg.type = MessageType::Instantiate;
+				msg.key = MessageKey::Damage;
+				msg.value = 1;
+				entity->broadcast(msg);
+				firing = fireRate;
+			}
 		}
 
 		if (input.jump)
 		{
 			if (!jumping)
 			{
+				printf("Jump!\n");
 				ComponentMessage msg;
 				msg.type = MessageType::Physics;
 				msg.key = MessageKey::Jump;
@@ -76,6 +89,10 @@ void InputComponent::processInput(EntityInput input, float deltaTime)
 		else
 		{
 			jumping = false;
+		}
+		if (firing >= 0.f)
+		{
+			firing -= deltaTime;
 		}
 	}
 };

@@ -81,6 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EntityManager.h" />
+    <ClInclude Include="JSS_IEntityManager.h" />
     <ClInclude Include="JSS_GraphicsComponent.h" />
     <ClInclude Include="JSS_ColliderComponent.h" />
     <ClInclude Include="JSS_Component.h" />

@@ -6,25 +6,37 @@
 // Description : 
 //============================================================================
 
+#include <iostream>
 #include "JSS_Entity.h"
 
 Entity::Entity()
 {
+	manager = nullptr;
 	x = 0.0f;
 	y = 0.0f;
 }
 
-Entity::Entity(float X, float Y)
+Entity::Entity(IEntityManager *m, float X, float Y)
 {
+	manager = m;
 	x = X;
 	y = Y;
 }
 
 void Entity::broadcast(ComponentMessage message)
 {
-	for (auto &i : myComponents)
+	if (message.type == MessageType::Instantiate)
 	{
-		i->receive(message);
+		std::cout << "Entity: component asked to broadcast instantiate!" << std::endl;
+		Entity tempEntity = Entity(manager, x, y);
+		manager->instantiate(&tempEntity, nullptr);
+	}
+	else
+	{
+		for (auto &i : myComponents)
+		{
+			i->receive(message);
+		}
 	}
 };
 
@@ -55,12 +67,14 @@ float Entity::getY() { return y; }
 void Entity::changeX(float deltaX) { x += deltaX; }
 void Entity::changeY(float deltaY) { y += deltaY; }
 
+void Entity::setId(int id) { myId = id; }
 void Entity::setInputId(int id) { inputIndex = id; }
 void Entity::setGraphicsId(int id) { graphicsIndex = id; }
 void Entity::setColliderId(int id) { colliderIndex = id; }
 void Entity::setPhysicsId(int id) { physicsIndex = id; }
 
-int Entity::getInputId(int id) { return inputIndex; }
-int Entity::getGraphicsId(int id) { return graphicsIndex; }
-int Entity::getColliderId(int id) { return colliderIndex; }
-int Entity::getPhysicsId(int id) { return physicsIndex; }
+int Entity::getId() { return myId; }
+int Entity::getInputId() { return inputIndex; }
+int Entity::getGraphicsId() { return graphicsIndex; }
+int Entity::getColliderId() { return colliderIndex; }
+int Entity::getPhysicsId() { return physicsIndex; }

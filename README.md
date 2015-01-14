@@ -7,8 +7,10 @@
 - Camera follow on player one
 - SDL gamepad one input to player one
 - Keyboard input to player one
+- EntityManager
+- Entity Base
+- Basic Entity Instantiation Request
 - Components:
-  - Entity Base
   - Input Base
   - Collider Base
   - Physics Base
@@ -17,6 +19,6 @@
 <hr>
 
 ### TODO:
-<b>Next:</b> EntityManager
+<b>Next:</b> BehaviorComponent
 - Variable Height Jumping
 - Lots more

@@ -29,13 +29,16 @@ class InputComponent : public Component
 {
 public:
 	InputComponent() { speed = 0.0f; }
-	InputComponent(Entity *inputEntity, float Speed);
+	InputComponent(Entity *inputEntity, float Speed, float FireRate);
 
 	void receive(ComponentMessage message);
 	void processInput(EntityInput input, float deltaTime);
 private:
 	Entity *entity;
 	float speed;
+
+	float firing;
+	float fireRate;
 
 	bool jumping;
 };
