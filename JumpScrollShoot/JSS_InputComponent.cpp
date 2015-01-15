@@ -18,7 +18,17 @@ InputComponent::InputComponent(Entity *inputEntity, float Speed, float FireRate)
 	fireRate = FireRate;
 };
 
+void InputComponent::setEntity(Entity *inputEntity)
+{
+	entity = inputEntity;
+}
+
 void InputComponent::receive(ComponentMessage message)
+{
+
+};
+
+void InputComponent::update(float deltaTime)
 {
 
 };

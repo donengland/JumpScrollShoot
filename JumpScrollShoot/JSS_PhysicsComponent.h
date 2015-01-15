@@ -44,6 +44,9 @@ class PhysicsComponent : public Component
 public:
 	PhysicsComponent();
 	PhysicsComponent(Entity *physicsEntity, ColliderComponent *physicsCollider, float Mass = 1.f, bool Gravity = true);
+
+	void setEntity(Entity *physicsEntity);
+
 	/*
 	 * Process message from associated entity
 	*/
@@ -59,6 +62,8 @@ public:
 	* Updates physics given a deltaTime in seconds
 	*/
 	void update(float deltaTime);
+
+	void setCollider(ColliderComponent *c);
 
 	float getXVel();
 	void setXVel(float xVelocity);

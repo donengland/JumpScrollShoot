@@ -36,7 +36,13 @@ ColliderComponent::ColliderComponent(Entity *ColliderEntity,
 	below = false;
 	grounded = false;
 	colliding = false;
+	dead = false;
 };
+
+void ColliderComponent::setEntity(Entity *ColliderEntity)
+{
+	entity = ColliderEntity;
+}
 
 void ColliderComponent::resetCollisions()
 {
@@ -46,13 +52,27 @@ void ColliderComponent::resetCollisions()
 	below = false;
 	grounded = false;
 	colliding = false;
-}
+};
+
 void ColliderComponent::resolveCollision(ColliderComponent &other)
 {
 	// We had a collision with another Collider
 	colliding = true;
-	//if (category == ColliderCategory::player)
-	if (other.category == ColliderCategory::immobile)
+	
+	if ((category == ColliderCategory::playerAttack) && (other.category == ColliderCategory::immobile))
+	{
+		//std::cout << "Collider Component:Sending DeleteMe Message" << std::endl;
+		if (!dead)
+		{
+			ComponentMessage msg;
+			msg.type = MessageType::DeleteMe;
+			msg.key = MessageKey::Damage;
+			msg.value = 0.f;
+			entity->broadcast(msg);
+			dead = true;
+		}
+	}
+	else if (other.category == ColliderCategory::immobile)
 	{
 		// Flag for possibly being completely inside the other collider
 		bool inside = false;
@@ -129,13 +149,19 @@ void ColliderComponent::resolveCollision(ColliderComponent &other)
 bool ColliderComponent::isGrounded()
 {
 	return grounded;
-}
+};
 
 bool ColliderComponent::isColliding()
 {
 	return colliding;
-}
+};
+
 void ColliderComponent::receive(ComponentMessage message)
+{
+
+};
+
+void ColliderComponent::update(float deltaTime)
 {
 
 };

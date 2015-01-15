@@ -21,6 +21,7 @@ class IEntityManager
 public:
 	~IEntityManager() {}
 	virtual bool instantiate(Entity *e, GraphicsComponent *g = nullptr, ColliderComponent *c = nullptr, PhysicsComponent *p = nullptr, InputComponent *i = nullptr) = 0;
+	virtual void deleteEntity(int id) = 0;
 };
 
 #endif

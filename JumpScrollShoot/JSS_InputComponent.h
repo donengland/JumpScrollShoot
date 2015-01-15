@@ -31,8 +31,12 @@ public:
 	InputComponent() { speed = 0.0f; }
 	InputComponent(Entity *inputEntity, float Speed, float FireRate);
 
+	void setEntity(Entity *inputEntity);
+
 	void receive(ComponentMessage message);
 	void processInput(EntityInput input, float deltaTime);
+	void update(float deltaTime);
+
 private:
 	Entity *entity;
 	float speed;

@@ -69,6 +69,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BulletComponent.cpp" />
     <ClCompile Include="EntityManager.cpp" />
     <ClCompile Include="JSS_ColliderComponent.cpp" />
     <ClCompile Include="JSS_Entity.cpp" />
@@ -81,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EntityManager.h" />
+    <ClInclude Include="BulletComponent.h" />
     <ClInclude Include="JSS_IEntityManager.h" />
     <ClInclude Include="JSS_GraphicsComponent.h" />
     <ClInclude Include="JSS_ColliderComponent.h" />

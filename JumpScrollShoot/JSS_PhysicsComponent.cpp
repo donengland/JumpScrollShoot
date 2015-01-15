@@ -26,7 +26,8 @@ PhysicsComponent::PhysicsComponent()
 
 	xAccel = 0.f;
 	yAccel = 0.f;
-}
+};
+
 PhysicsComponent::PhysicsComponent(Entity *physicsEntity, ColliderComponent *physicsCollider, float Mass, bool Gravity)
 {
 	activeForces[MAX_PHYSICS_FORCES] = {};
@@ -44,7 +45,17 @@ PhysicsComponent::PhysicsComponent(Entity *physicsEntity, ColliderComponent *phy
 
 	xAccel = 0.f;
 	yAccel = 0.f;
-}
+};
+
+void PhysicsComponent::setEntity(Entity *physicsEntity)
+{
+	entity = physicsEntity;
+};
+
+void PhysicsComponent::setCollider(ColliderComponent *c)
+{
+	collider = c;
+};
 
 void PhysicsComponent::receive(ComponentMessage message)
 {
@@ -82,7 +93,7 @@ bool PhysicsComponent::addForce(PhysicsForce force)
 	}
 
 	return result;
-}
+};
 
 /*
 * Updates physics given a deltaTime in milliseconds
@@ -170,7 +181,7 @@ void PhysicsComponent::update(float deltaTime)
 
 	entity->changeX(xVel * deltaTime);
 	entity->changeY(yVel * deltaTime); 
-}
+};
 
 float PhysicsComponent::getXVel() { return xVel; }
 void PhysicsComponent::setXVel(float xVelocity) { xVel = xVelocity; }

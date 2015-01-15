@@ -35,12 +35,17 @@ GraphicsComponent::GraphicsComponent(Entity *GraphicsEntity,
 	alpha = Alpha;
 };
 
+void GraphicsComponent::setEntity(Entity *GraphicsEntity)
+{
+	entity = GraphicsEntity;
+};
+
 void GraphicsComponent::render(SDL_Renderer *renderer, int xOffset, int yOffset)
 {
 	SDL_Rect transformRect = { (int)(getMinX() - xOffset), (int)(getMinY() - yOffset), (int)width, (int)height };
 	SDL_SetRenderDrawColor(renderer, red, green, blue, alpha);
 	SDL_RenderFillRect(renderer, &transformRect);
-}
+};
 
 void GraphicsComponent::setColor(uint8 Red, uint8 Green, uint8 Blue, uint8 Alpha)
 {
@@ -54,6 +59,11 @@ void GraphicsComponent::receive(ComponentMessage message)
 {
 
 };
+
+void GraphicsComponent::update(float deltaTime)
+{
+
+}
 
 float GraphicsComponent::getLocalX() { return x; }
 float GraphicsComponent::getLocalY() { return y; }

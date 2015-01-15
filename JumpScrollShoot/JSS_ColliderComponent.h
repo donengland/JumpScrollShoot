@@ -23,7 +23,10 @@ public:
 					  float Width = 0.0f, float Height = 0.0f,
 					  ColliderCategory Category = ColliderCategory::immobile);
 
+	void setEntity(Entity *ColliderEntity);
+
 	void receive(ComponentMessage message);
+	void update(float deltaTime);
 
 	void resetCollisions();
 	void resolveCollision(ColliderComponent &other);
@@ -68,6 +71,7 @@ private:
 
 	bool grounded;
 	bool colliding;
+	bool dead;
 };
 
 #endif

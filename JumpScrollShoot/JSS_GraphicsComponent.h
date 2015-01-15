@@ -26,7 +26,10 @@ public:
 					  float Width = 0.0f, float Height = 0.0f,
 					  float localX = 0.0f, float localY = 0.0f);
 
+	void setEntity(Entity *GraphicsEntity);
+
 	void receive(ComponentMessage message);
+	void update(float deltaTime);
 
 	void render(SDL_Renderer *renderer, int xOffset, int yOffset);
 
