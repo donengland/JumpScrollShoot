@@ -34,7 +34,7 @@ public:
 
 	bool update(EntityInput* input, int NumInputs, uint32 DeltaTime, SDL_Renderer *renderer);
 
-	bool instantiate(Entity *e, GraphicsComponent *g = nullptr, ColliderComponent *c = nullptr, PhysicsComponent *p = nullptr, InputComponent *i = nullptr);
+	bool instantiate(ComponentMessage msg);
 
 	void deleteEntity(int id);
 
@@ -62,7 +62,8 @@ private:
 	int numBehaviors;
 
 	// TODO(don): Create world container for loading worlds
-	int worldSize;
+	int worldWidth;
+	int worldHeight;
 
 	// TODO(don): Create camera container?
 	int camCenterX;

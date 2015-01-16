@@ -13,12 +13,14 @@ class Entity;
 
 // TODO(don): implement message union (see SDL_Event)
 enum class MessageType { Instantiate, Physics, Health, DeleteMe };
-enum class MessageKey { Jump, Heal, Damage };
+enum class MessageKey { Jump, Bullet, Heal, Damage };
 
 struct ComponentMessage
 {
 	MessageType type;
 	MessageKey key;
+	float x;
+	float y;
 	float value;
 };
 

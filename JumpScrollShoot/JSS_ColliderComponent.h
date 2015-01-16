@@ -71,7 +71,6 @@ private:
 
 	bool grounded;
 	bool colliding;
-	bool dead;
 };
 
 #endif

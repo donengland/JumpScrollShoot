@@ -42,8 +42,7 @@ void Entity::broadcast(ComponentMessage message)
 	if (message.type == MessageType::Instantiate)
 	{
 		//std::cout << "Entity: component asked to broadcast instantiate!" << std::endl;
-		Entity tempEntity = Entity(manager, x, y);
-		manager->instantiate(&tempEntity, nullptr);
+		manager->instantiate(message);
 	}
 	else if (message.type == MessageType::DeleteMe)
 	{

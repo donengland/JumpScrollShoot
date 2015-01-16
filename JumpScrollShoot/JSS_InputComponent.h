@@ -43,6 +43,7 @@ private:
 
 	float firing;
 	float fireRate;
+	bool facingRight;
 
 	bool jumping;
 };

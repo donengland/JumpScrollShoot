@@ -16,6 +16,7 @@ InputComponent::InputComponent(Entity *inputEntity, float Speed, float FireRate)
 
 	firing = 0.f;
 	fireRate = FireRate;
+	facingRight = true;
 };
 
 void InputComponent::setEntity(Entity *inputEntity)
@@ -50,11 +51,13 @@ void InputComponent::processInput(EntityInput input, float deltaTime)
 		if (input.right)
 		{
 			entity->changeX(changeAmount);
+			facingRight = true;
 		}
 
 		if (input.left)
 		{
 			entity->changeX(-changeAmount);
+			facingRight = false;
 		}
 
 		// TODO(don): should up be global coordinate up, not screen space?
@@ -76,8 +79,17 @@ void InputComponent::processInput(EntityInput input, float deltaTime)
 				printf("Shoot!\n");
 				ComponentMessage msg;
 				msg.type = MessageType::Instantiate;
-				msg.key = MessageKey::Damage;
-				msg.value = 1;
+				msg.key = MessageKey::Bullet;
+				msg.x = entity->getX();
+				msg.y = entity->getY();
+				if (facingRight)
+				{
+					msg.value = 0.f;
+				}
+				else
+				{
+					msg.value = 180.f;
+				}
 				entity->broadcast(msg);
 				firing = fireRate;
 			}

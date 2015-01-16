@@ -36,7 +36,6 @@ ColliderComponent::ColliderComponent(Entity *ColliderEntity,
 	below = false;
 	grounded = false;
 	colliding = false;
-	dead = false;
 };
 
 void ColliderComponent::setEntity(Entity *ColliderEntity)
@@ -62,15 +61,11 @@ void ColliderComponent::resolveCollision(ColliderComponent &other)
 	if ((category == ColliderCategory::playerAttack) && (other.category == ColliderCategory::immobile))
 	{
 		//std::cout << "Collider Component:Sending DeleteMe Message" << std::endl;
-		if (!dead)
-		{
-			ComponentMessage msg;
-			msg.type = MessageType::DeleteMe;
-			msg.key = MessageKey::Damage;
-			msg.value = 0.f;
-			entity->broadcast(msg);
-			dead = true;
-		}
+		ComponentMessage msg;
+		msg.type = MessageType::DeleteMe;
+		msg.key = MessageKey::Damage;
+		msg.value = 0.f;
+		entity->broadcast(msg);
 	}
 	else if (other.category == ColliderCategory::immobile)
 	{

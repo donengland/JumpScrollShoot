@@ -15,12 +15,13 @@ class GraphicsComponent;
 class ColliderComponent;
 class PhysicsComponent;
 class InputComponent;
+struct ComponentMessage;
 
 class IEntityManager
 {
 public:
 	~IEntityManager() {}
-	virtual bool instantiate(Entity *e, GraphicsComponent *g = nullptr, ColliderComponent *c = nullptr, PhysicsComponent *p = nullptr, InputComponent *i = nullptr) = 0;
+	virtual bool instantiate(ComponentMessage msg) = 0;
 	virtual void deleteEntity(int id) = 0;
 };
 

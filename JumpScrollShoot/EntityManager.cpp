@@ -293,7 +293,7 @@ bool EntityManager::loadWorld()
 		numPhysics++;
 
 		// InputComponent created and copied over element 0 player one
-		InputComponent playerInput(&entities[0], 300.f, 0.25f);
+		InputComponent playerInput(&entities[0], 200.f, 0.25f);
 		inputComponents[0] = playerInput;
 		numInputs++;
 
@@ -321,13 +321,14 @@ bool EntityManager::loadWorld()
 		numEntities++;
 
 		// NOTE(don): Test different world sizes
-		worldSize = 1000;
+		worldWidth = 5000;
+		worldHeight = 480;
 
 		// Add colliders on boundaries
-		ColliderComponent worldLeftCollider(&entities[1], (float)(-worldSize), 0.f, (float)(worldSize), (float)(worldSize));
-		ColliderComponent worldRightCollider(&entities[1], (float)(worldSize), 0.f, (float)(worldSize), (float)(worldSize));
-		ColliderComponent worldTopCollider(&entities[1], (float)(-worldSize), (float)(-worldSize), (float)((worldSize * 3)), (float)(worldSize));
-		ColliderComponent worldBottomCollider(&entities[1], (float)(-worldSize), (float)(worldSize), (float)((worldSize * 3)), (float)(worldSize));
+		ColliderComponent worldLeftCollider(&entities[1], (float)(-worldWidth), 0.f, (float)(worldWidth), (float)(worldHeight));
+		ColliderComponent worldRightCollider(&entities[1], (float)(worldWidth), 0.f, (float)(worldWidth), (float)(worldHeight));
+		ColliderComponent worldTopCollider(&entities[1], (float)(-worldWidth), (float)(-worldHeight), (float)((worldWidth * 3)), (float)(worldHeight));
+		ColliderComponent worldBottomCollider(&entities[1], (float)(-worldWidth), (float)(worldHeight), (float)((worldWidth * 3)), (float)(worldHeight));
 		colliderComponents[1] = worldLeftCollider;
 		colliderComponents[2] = worldRightCollider;
 		colliderComponents[3] = worldTopCollider;
@@ -335,10 +336,10 @@ bool EntityManager::loadWorld()
 		numColliders += 4;
 
 		// Add Black Graphics Components for world edges
-		GraphicsComponent worldLeftGraphics(&entities[1], 0x00, 0x00, 0x00, 0xFF, (float)(worldSize), (float)(worldSize), (float)(-worldSize), 0.f);
-		GraphicsComponent worldRightGraphics(&entities[1], 0x00, 0x00, 0x00, 0xFF, (float)(worldSize), (float)(worldSize), (float)(worldSize), 0.f);
-		GraphicsComponent worldTopGraphics(&entities[1], 0x00, 0x00, 0x00, 0xFF, (float)((worldSize * 3)), (float)(worldSize), (float)(-worldSize), (float)(-worldSize));
-		GraphicsComponent worldBottomGraphics(&entities[1], 0x00, 0x00, 0x00, 0xFF, (float)((worldSize * 3)), (float)(worldSize), (float)(-worldSize), (float)(worldSize));
+		GraphicsComponent worldLeftGraphics(&entities[1], 0x00, 0x00, 0x00, 0xFF, (float)(worldWidth), (float)(worldHeight), (float)(-worldWidth), 0.f);
+		GraphicsComponent worldRightGraphics(&entities[1], 0x00, 0x00, 0x00, 0xFF, (float)(worldWidth), (float)(worldHeight), (float)(worldWidth), 0.f);
+		GraphicsComponent worldTopGraphics(&entities[1], 0x00, 0x00, 0x00, 0xFF, (float)((worldWidth * 3)), (float)(worldHeight), (float)(-worldWidth), (float)(-worldHeight));
+		GraphicsComponent worldBottomGraphics(&entities[1], 0x00, 0x00, 0x00, 0xFF, (float)((worldWidth * 3)), (float)(worldHeight), (float)(-worldWidth), (float)(worldHeight));
 		graphicsComponents[1] = worldLeftGraphics;
 		graphicsComponents[2] = worldRightGraphics;
 		graphicsComponents[3] = worldTopGraphics;
@@ -358,30 +359,43 @@ bool EntityManager::loadWorld()
 
 	// create temp blocks
 	{
-		CreateBlock(600.f, (float)(worldSize - 500.f), 100.f, 100.f, 0x00, 0xFF, 0xFF);
-		CreateBlock(500.f, (float)(worldSize - 400.f), 300.f, 100.f, 0x00, 0xFF, 0xFF);
-		CreateBlock(400.f, (float)(worldSize - 300.f), 500.f, 100.f, 0x00, 0xFF, 0xFF);
-		CreateBlock(300.f, (float)(worldSize - 200.f), 700.f, 100.f, 0x00, 0xFF, 0xFF);
-		CreateBlock(0.f, (float)(worldSize - 100.f), (float)(worldSize), 50.f, 0x00, 0xAA, 0xAA);
+		CreateBlock((float)(worldWidth - 100.f), (float)(worldHeight - 500.f), 100.f, 100.f, 0x00, 0xFF, 0xFF);
+		CreateBlock((float)(worldWidth - 200.f), (float)(worldHeight - 400.f), 200.f, 100.f, 0x00, 0xFF, 0xFF);
+		CreateBlock((float)(worldWidth - 300.f), (float)(worldHeight - 300.f), 300.f, 100.f, 0x00, 0xFF, 0xFF);
+		CreateBlock((float)(worldWidth - 400.f), (float)(worldHeight - 200.f), 400.f, 100.f, 0x00, 0xFF, 0xFF);
+		int blockWidth = 100;
+		for (int index = 0; index < (worldWidth / blockWidth); index++)
+		{
+			// Create Floor Blocks
+			if (index % 2)
+			{
+				CreateBlock((float)(blockWidth * index), (float)(worldHeight - 100.f), (float)(blockWidth), 50.f, 0x00, 0xAA, 0xAA);
+			}
+			else
+			{
+				CreateBlock((float)(blockWidth * index), (float)(worldHeight - 100.f), (float)(blockWidth), 50.f, 0x00, 0xFF, 0xFF);
+			}
+		}
 	}
 
 	return result;
 }
 
-bool EntityManager::instantiate(Entity *e, GraphicsComponent *g, ColliderComponent *c, PhysicsComponent *p, InputComponent *i)
+bool EntityManager::instantiate(ComponentMessage msg)
 {
 	bool result = false;
-
-	// TODO(don): Instantiate requested entity
-	if (e == nullptr)// || g == nullptr)
+	if (msg.type == MessageType::Instantiate)
 	{
-		std::cout << "EntityManager: received invalid instantiate" << std::endl;
-	}
-	else
-	{
-		//std::cout << "EntityManager: received instantiate at (" << e->getX() << ", " << e->getY() << ")" << std::endl;
-		CreateBullet((e->getX() + 50), (e->getY() + 25), 5.f, 5.f, 0.f, 400.f, 0xFF, 0x00, 0x00);
-		result = true;
+		if (msg.key == MessageKey::Bullet)
+		{
+			CreateBullet((msg.x + ((msg.value == 0.f) ? 50 : 0)),	// X Position
+						 (msg.y + 25),								// Y Position
+						 5.f, 5.f,									// Size
+						 msg.value,									// Angle | where 0.f is right, 90.f is up
+						 500.f,										// Speed (pixels per second)
+						 0xFF, 0x00, 0x00);							// Color
+			result = true;
+		}
 	}
 
 	return result;
@@ -426,20 +440,21 @@ bool EntityManager::update(EntityInput* input, int NumInputs, uint32 DeltaTime, 
 	// TODO(don): Implement a broad stage pass to reduce the number of comparisons
 	//    try binary space partitioning (bsp)
 	// Process all colliders -- add any appropriate physics forces
+	for (int index = 0; index < numColliders; index++)
+	{
+		// Note, may want to expand collision with enter, stay and exit flags/functions
+		colliderComponents[index].resetCollisions();
+	}
 	for (int primary = 0; primary < numColliders; primary++)
 	{
 		ColliderCategory primaryCat = colliderComponents[primary].getCategory();
 
-		// Reset previous collisions
 		//if (primaryCat != ColliderCategory::immobile)
 		//{
-			colliderComponents[primary].resetCollisions();
 
 			// Test for collisions with other colliderComponents
 			for (int secondary = primary + 1; secondary < numColliders; secondary++)
 			{
-				// Reset previous collisions
-				colliderComponents[secondary].resetCollisions();
 
 				// Collision test between primary and secondary
 				if (colliderComponents[primary].getMaxX() < colliderComponents[secondary].getMinX() ||
@@ -502,17 +517,17 @@ bool EntityManager::update(EntityInput* input, int NumInputs, uint32 DeltaTime, 
 	{
 		camCenterX = camHalfWidth;
 	}
-	else if ((camCenterX + camHalfWidth) > worldSize)
+	else if ((camCenterX + camHalfWidth) > worldWidth)
 	{
-		camCenterX = worldSize - camHalfWidth;
+		camCenterX = worldWidth - camHalfWidth;
 	}
 	if ((camCenterY - camHalfHeight) < 0)
 	{
 		camCenterY = camHalfHeight;
 	}
-	else if ((camCenterY + camHalfHeight) > worldSize)
+	else if ((camCenterY + camHalfHeight) > worldHeight)
 	{
-		camCenterY = worldSize - camHalfHeight;
+		camCenterY = worldHeight - camHalfHeight;
 	}
 	
 	// Process all deletions before drawing
