@@ -79,6 +79,7 @@
     <ClCompile Include="JSS_TransformComponent.cpp" />
     <ClCompile Include="JumpScrollShoot.cpp" />
     <ClCompile Include="SDL_JumpScrollShoot.cpp" />
+    <ClCompile Include="SlimeBehavior.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EntityManager.h" />
@@ -93,6 +94,7 @@
     <ClInclude Include="JSS_PhysicsComponent.h" />
     <ClInclude Include="JSS_TransformComponent.h" />
     <ClInclude Include="JumpScrollShoot.h" />
+    <ClInclude Include="SlimeBehavior.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

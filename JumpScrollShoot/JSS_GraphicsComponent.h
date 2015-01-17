@@ -21,19 +21,19 @@ class GraphicsComponent : public Component
 {
 public:
 	GraphicsComponent();
-	GraphicsComponent(Entity *GraphicsEntity,
-					  uint8 Red = 0x00, uint8 Green = 0x00, uint8 Blue = 0x00, uint8 Alpha = 0xFF,
-					  float Width = 0.0f, float Height = 0.0f,
+	GraphicsComponent(Entity *entity, int id,
+					  uint8 red = 0x00, uint8 green = 0x00, uint8 blue = 0x00, uint8 alpha = 0xFF,
+					  float width = 0.0f, float height = 0.0f,
 					  float localX = 0.0f, float localY = 0.0f);
 
-	void setEntity(Entity *GraphicsEntity);
+	void setEntity(Entity *entity);
 
 	void receive(ComponentMessage message);
-	void update(float deltaTime);
+	void update(float deltaTime, float *playerXY, int numPlayers);
 
 	void render(SDL_Renderer *renderer, int xOffset, int yOffset);
 
-	void setColor(uint8 Red, uint8 Green, uint8 Blue, uint8 Alpha = 0xFF);
+	void setColor(uint8 red, uint8 green, uint8 blue, uint8 alpha = 0xFF);
 
 	float getLocalX();
 	float getLocalY();
@@ -44,23 +44,27 @@ public:
 	float getMinY();
 	float getMaxY();
 
-	void setX(float X);
-	void setY(float Y);
+	void setX(float x);
+	void setY(float x);
+
+	void setId(int id);
+	int getId();
 
 	float getWidth();
 	float getHeight();
 
-	void setWidth(float Width);
-	void setHeight(float Height);
+	void setWidth(float width);
+	void setHeight(float height);
 
 private:
-	Entity *entity;
+	Entity *entity_;
+	int id_;
 
-	float x, y;
+	float x_, y_;
 
-	float width, height;
+	float w_, h_;
 
-	uint8 red, green, blue, alpha;
+	uint8 red_, green_, blue_, alpha_;
 };
 
 #endif

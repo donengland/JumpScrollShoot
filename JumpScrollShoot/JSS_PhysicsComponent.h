@@ -43,9 +43,9 @@ class PhysicsComponent : public Component
 {
 public:
 	PhysicsComponent();
-	PhysicsComponent(Entity *physicsEntity, ColliderComponent *physicsCollider, float Mass = 1.f, bool Gravity = true);
+	PhysicsComponent(Entity *entity, ColliderComponent *collider, int id, float mass = 1.f, bool gravity = true);
 
-	void setEntity(Entity *physicsEntity);
+	void setEntity(Entity *entity);
 
 	/*
 	 * Process message from associated entity
@@ -61,9 +61,13 @@ public:
 	/*
 	* Updates physics given a deltaTime in seconds
 	*/
-	void update(float deltaTime);
+	void update(float deltaTime, float *playerXY, int numPlayers);
+
+	void setId(int id);
+	int getId();
 
 	void setCollider(ColliderComponent *c);
+	void updateCollider();
 
 	float getXVel();
 	void setXVel(float xVelocity);
@@ -81,22 +85,24 @@ public:
 	void setMass(float Mass);
 
 private:
-	PhysicsForce activeForces[MAX_PHYSICS_FORCES];
-	Entity *entity;
-	ColliderComponent *collider;
+	PhysicsForce activeForces_[MAX_PHYSICS_FORCES];
+	Entity *entity_;
+	ColliderComponent *collider_;
 
-	float xVel;
-	float yVel;
+	int id_;
 
-	float xAccel;
-	float yAccel;
+	float xVel_;
+	float yVel_;
 
-	float mass;
+	float xAccel_;
+	float yAccel_;
 
-	float jumpAmount;
-	bool jumping;
+	float mass_;
 
-	bool gravity;
+	float jumpAmount_;
+	bool jumping_;
+
+	bool gravity_;
 };
 
 #endif

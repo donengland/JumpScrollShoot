@@ -11,51 +11,65 @@
 
 PhysicsComponent::PhysicsComponent()
 {
-	activeForces[MAX_PHYSICS_FORCES] = {};
-	entity = nullptr;
-	collider = nullptr;
+	activeForces_[MAX_PHYSICS_FORCES] = {};
+	entity_ = nullptr;
+	collider_ = nullptr;
+	id_ = -1;
 
-	mass = 1.0f;
+	mass_ = 1.0f;
 
-	jumpAmount = 0.f;
+	jumpAmount_ = 0.f;
 
-	gravity = false;
+	gravity_ = true;
 
-	xVel = 0.f;
-	yVel = 0.f;
+	xVel_ = 0.f;
+	yVel_ = 0.f;
 
-	xAccel = 0.f;
-	yAccel = 0.f;
+	xAccel_ = 0.f;
+	yAccel_ = 0.f;
 };
 
-PhysicsComponent::PhysicsComponent(Entity *physicsEntity, ColliderComponent *physicsCollider, float Mass, bool Gravity)
+PhysicsComponent::PhysicsComponent(Entity *entity, ColliderComponent *collider, int id, float mass, bool gravity)
 {
-	activeForces[MAX_PHYSICS_FORCES] = {};
-	entity = physicsEntity;
-	collider = physicsCollider;
+	activeForces_[MAX_PHYSICS_FORCES] = {};
+	entity_ = entity;
+	collider_ = collider;
+	id_ = id;
 
-	mass = Mass;
+	mass_ = mass;
 
-	gravity = Gravity;
+	gravity_ = gravity;
 
-	jumpAmount = 1000.0f;
+	jumpAmount_ = 1000.0f;
 
-	xVel = 0.f;
-	yVel = 0.f;
+	xVel_ = 0.f;
+	yVel_ = 0.f;
 
-	xAccel = 0.f;
-	yAccel = 0.f;
+	xAccel_ = 0.f;
+	yAccel_ = 0.f;
 };
 
-void PhysicsComponent::setEntity(Entity *physicsEntity)
+void PhysicsComponent::setEntity(Entity *entity)
 {
-	entity = physicsEntity;
+	entity_ = entity;
+	entity_->setPhysics(this, id_);
 };
+
+void PhysicsComponent::setId(int id)
+{
+	id_ = id;
+	entity_->setPhysicsId(id_);
+}
 
 void PhysicsComponent::setCollider(ColliderComponent *c)
 {
-	collider = c;
+	collider_ = c;
 };
+
+void PhysicsComponent::updateCollider()
+{
+	collider_ = (ColliderComponent*)(entity_->getCollider());
+}
 
 void PhysicsComponent::receive(ComponentMessage message)
 {
@@ -65,10 +79,10 @@ void PhysicsComponent::receive(ComponentMessage message)
 		{
 			case MessageKey::Jump:
 			{
-				if (collider->isGrounded())
+				if (collider_->isGrounded())
 				{
-					jumpAmount = message.value;
-					jumping = true;
+					jumpAmount_ = message.value;
+					jumping_ = true;
 				}
 			}
 		}
@@ -84,9 +98,9 @@ bool PhysicsComponent::addForce(PhysicsForce force)
 	bool result = false;
 	for (int index = 0; index < MAX_PHYSICS_FORCES; index++)
 	{
-		if (activeForces[index].duration <= 0.f)
+		if (activeForces_[index].duration <= 0.f)
 		{
-			activeForces[index] = force;
+			activeForces_[index] = force;
 			result = true;
 			break;
 		}
@@ -98,39 +112,39 @@ bool PhysicsComponent::addForce(PhysicsForce force)
 /*
 * Updates physics given a deltaTime in milliseconds
 */
-void PhysicsComponent::update(float deltaTime)
+void PhysicsComponent::update(float deltaTime, float *playerXY, int numPlayers)
 {
 	// Check to apply gravity
-	if (gravity)
+	if (gravity_)
 	{
-		if (collider->isGrounded())
+		if (collider_->isGrounded())
 		{
 			// NOTE(don): Need the ground to stop positive yvelocity
-			if (yVel > 0.f)
+			if (yVel_ > 0.f)
 			{
-				yAccel = 0.f;
-				yVel = 0.f;
+				yAccel_ = 0.f;
+				yVel_ = 0.f;
 			}
 
-			if (xVel != 0.f)
+			if (xVel_ != 0.f)
 			{
-				xVel = 0.f;
+				xVel_ = 0.f;
 			}
 		}
 		else
 		{
 			// TODO(don): universal coordinate system
-			yAccel = 98.f;
-			if (yVel > 800.f)
+			yAccel_ = 98.f;
+			if (yVel_ > 800.f)
 			{
-				yVel = 800.f;
+				yVel_ = 800.f;
 			}
 		}
 	}
-	if (jumping)
+	if (jumping_)
 	{
-		jumping = false;
-		yAccel -= jumpAmount;
+		jumping_ = false;
+		yAccel_ -= jumpAmount_;
 
 		// NOTE(don): example jump input below
 		/*
@@ -146,29 +160,29 @@ void PhysicsComponent::update(float deltaTime)
 	// 
 	for (int index = 0; index < MAX_PHYSICS_FORCES; index++)
 	{
-		if (activeForces[index].duration > 0.f)
+		if (activeForces_[index].duration > 0.f)
 		{
 			// Apply accelerations due to this force
-			float totalForce = (activeForces[index].magnitude / mass);
+			float totalForce = (activeForces_[index].magnitude / mass_);
 			// NOTE(don): Cos(angle) gives x component, Sin(angle) gives y component
-			float forceX = (float)((Cos(activeForces[index].angle)) * totalForce);
-			float forceY = (float)((Sin(activeForces[index].angle)) * totalForce);
+			float forceX = (float)((Cos(activeForces_[index].angle)) * totalForce);
+			float forceY = (float)((Sin(activeForces_[index].angle)) * totalForce);
 
 			if (abs(forceX) > 0.1f)
 			{
-				xAccel += forceX;
+				xAccel_ += forceX;
 			}
 			if (abs(forceY) > 0.1f)
 			{
 				// NOTE(don): using flipped coordinate on y
-				yAccel -= forceY;
+				yAccel_ -= forceY;
 			}
 
 			// Decay the magnitude
-			activeForces[index].magnitude -= activeForces[index].decay * deltaTime;
+			activeForces_[index].magnitude -= activeForces_[index].decay * deltaTime;
 
 			// Reduce duration
-			activeForces[index].duration -= deltaTime;
+			activeForces_[index].duration -= deltaTime;
 		}
 	}
 	// Update velocities
@@ -176,24 +190,24 @@ void PhysicsComponent::update(float deltaTime)
 	// velocity = integral of acceleration dt
 	// v_i*t + (1/2)*a*t^2
 	// v_f = v_i + at
-	xVel += xAccel;
-	yVel += yAccel;
+	xVel_ += xAccel_;
+	yVel_ += yAccel_;
 
-	entity->changeX(xVel * deltaTime);
-	entity->changeY(yVel * deltaTime); 
+	entity_->changeX(xVel_ * deltaTime);
+	entity_->changeY(yVel_ * deltaTime); 
 };
 
-float PhysicsComponent::getXVel() { return xVel; }
-void PhysicsComponent::setXVel(float xVelocity) { xVel = xVelocity; }
+float PhysicsComponent::getXVel() { return xVel_; }
+void PhysicsComponent::setXVel(float xVel) { xVel_ = xVel; }
 
-float PhysicsComponent::getYVel() { return yVel; }
-void PhysicsComponent::setYVel(float yVelocity) { yVel = yVelocity; }
+float PhysicsComponent::getYVel() { return yVel_; }
+void PhysicsComponent::setYVel(float yVel) { yVel_ = yVel; }
 
-float PhysicsComponent::getXAccel() { return xAccel; }
-void PhysicsComponent::setXAccel(float xAcceleration) { xAccel = xAcceleration; }
+float PhysicsComponent::getXAccel() { return xAccel_; }
+void PhysicsComponent::setXAccel(float xAccel) { xAccel_ = xAccel; }
 
-float PhysicsComponent::getYAccel() { return yAccel; }
-void PhysicsComponent::setYAccel(float yAcceleration) { yAccel = yAcceleration; }
+float PhysicsComponent::getYAccel() { return yAccel_; }
+void PhysicsComponent::setYAccel(float yAccel) { yAccel_ = yAccel; }
 
-float PhysicsComponent::getMass() { return mass; }
-void PhysicsComponent::setMass(float Mass) { mass = Mass; }
+float PhysicsComponent::getMass() { return mass_; }
+void PhysicsComponent::setMass(float mass) { mass_ = mass; }

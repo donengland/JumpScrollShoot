@@ -6,50 +6,34 @@
 // Description : 
 //============================================================================
 
-#ifndef __JSS_INPUT_COMPONENT_H_GUARD
-#define __JSS_INPUT_COMPONENT_H_GUARD
+#ifndef __JSS_SLIME_BEHAVIOR_H_GUARD
+#define __JSS_SLIME_BEHAVIOR_H_GUARD
+
+#include <math.h>
+#define Cos(th) cos(3.1415926/180*(th))
+#define Sin(th) sin(3.1415926/180*(th))
 
 #include "JSS_Entity.h"
 #include "JSS_Component.h"
-#include "JSS_PhysicsComponent.h"
 
-struct EntityInput
-{
-	int jump;
 
-	bool shoot;
-
-	bool up;
-	bool down;
-	bool left;
-	bool right;
-};
-
-class InputComponent : public Component
+class SlimeBehavior: public Component
 {
 public:
-	InputComponent() { speed_ = 0.0f; }
-	InputComponent(Entity *entity, int id, float speed, float fireRate);
+	SlimeBehavior();
+	SlimeBehavior(Entity *entity, int id, float xVel = 0.f, float yVel = 0.f);
 
 	void setEntity(Entity *entity);
-
 	void receive(ComponentMessage message);
-	void processInput(EntityInput input, float deltaTime);
 	void update(float deltaTime, float *playerXY, int numPlayers);
-
 	void setId(int id);
 	int getId();
-
 private:
 	Entity *entity_;
 	int id_;
-	float speed_;
-
-	float firing_;
-	float fireRate_;
-	bool facingRight_;
-
-	bool jumping_;
+	float xVel_, yVel_;
+	float jumpTimer_;
+	float jumpRate_;
 };
 
 #endif

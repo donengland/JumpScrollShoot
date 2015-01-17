@@ -17,6 +17,7 @@
 #include "JSS_InputComponent.h"
 #include "JSS_GraphicsComponent.h"
 #include "BulletComponent.h"
+#include "SlimeBehavior.h"
 #include "JSS_Entity.h"
 
 typedef uint32_t uint32;
@@ -31,6 +32,7 @@ public:
 
 	void CreateBlock(float x, float y, float w, float h, uint8 red = 0x00, uint8 green = 0x00, uint8 blue = 0x00, uint8 alpha = 0xFF);
 	void CreateBullet(float x, float y, float w, float h, float angle, float magnitude, uint8 red = 0x00, uint8 green = 0x00, uint8 blue = 0x00, uint8 alpha = 0xFF);
+	void CreateSlime(float x, float y);
 
 	bool update(EntityInput* input, int NumInputs, uint32 DeltaTime, SDL_Renderer *renderer);
 

@@ -31,12 +31,23 @@ class Entity
 public:
 	Entity();
 
-	Entity(IEntityManager *m, float X, float Y);
+	Entity(IEntityManager *m, int id, float x, float y);
 
 	void broadcast(ComponentMessage message);
-	void addComponent(Component *c);
-	std::vector<Component*> getComponents(Component *c);
-	void clearComponents();
+
+	void setInput(Component *input, int id);
+	void setGraphics(Component *graphics, int id);
+	void setCollider(Component *collider, int id);
+	void setPhysics(Component *physics, int id);
+	void setBehavior(Component *behavior, int id);
+
+	Component *getInput();
+	Component *getGraphics();
+	Component *getCollider();
+	Component *getPhysics();
+	Component *getBehavior();
+
+	void updateComponentLink();
 
 	void setX(float X);
 	void setY(float Y);
@@ -64,16 +75,21 @@ public:
 	EntityIds getIds();
 
 private:
-	IEntityManager *manager;
-	float x, y;
-	int myId;
-	int inputIndex;
-	int graphicsIndex;
-	int colliderIndex;
-	int physicsIndex;
-	int behaviorIndex;
-	// TODO(don): change to array?
-	std::vector<Component*> myComponents;
+	IEntityManager *manager_;
+	Component *input_;
+	Component *graphics_;
+	Component *collider_;
+	Component *physics_;
+	Component *behavior_;
+
+	float x_, y_;
+	int id_;
+
+	int inputIndex_;
+	int graphicsIndex_;
+	int colliderIndex_;
+	int physicsIndex_;
+	int behaviorIndex_;
 };
 
 #endif

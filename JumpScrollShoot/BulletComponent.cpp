@@ -11,30 +11,39 @@
 
 BulletComponent::BulletComponent()
 {
-	entity = nullptr;
-	xVel = 0.f;
-	yVel = 0.f;
+	entity_ = nullptr;
+	xVel_ = 0.f;
+	yVel_ = 0.f;
 };
 
-BulletComponent::BulletComponent(Entity *e, float Angle, float Magnitude)
+BulletComponent::BulletComponent(Entity *entity, int id, float Angle, float Magnitude)
 {
-	entity = e;
-	xVel = (float)((Cos(Angle)) * Magnitude);
-	yVel = (float)((Sin(Angle)) * Magnitude);
+	entity_ = entity;
+	id_ = id;
+	xVel_ = (float)((Cos(Angle)) * Magnitude);
+	yVel_ = (float)((Sin(Angle)) * Magnitude);
 };
 
-void BulletComponent::setEntity(Entity *bulletEntity)
+void BulletComponent::setEntity(Entity *entity)
 {
-	entity = bulletEntity;
+	entity_ = entity;
+	entity_->setBehavior(this, id_);
 }
+
+void BulletComponent::setId(int id)
+{
+	id_ = id;
+	entity_->setBehaviorId(id_);
+}
+int BulletComponent::getId() { return id_; }
 
 void BulletComponent::receive(ComponentMessage message)
 {
 
 };
 
-void BulletComponent::update(float deltaTime)
+void BulletComponent::update(float deltaTime, float *playerXY, int numPlayers)
 {
-	entity->changeX((xVel * deltaTime));
-	entity->changeY((yVel * deltaTime));
+	entity_->changeX((xVel_ * deltaTime));
+	entity_->changeY((yVel_ * deltaTime));
 };

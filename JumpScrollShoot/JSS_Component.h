@@ -32,7 +32,7 @@ public:
 	virtual ~Component() {}
 
 	virtual void receive(ComponentMessage message) = 0;
-	virtual void update(float deltaTime) = 0;
+	virtual void update(float deltaTime, float *playerXY, int numPlayers) = 0;
 	virtual void setEntity(Entity *entity) = 0;
 };
 

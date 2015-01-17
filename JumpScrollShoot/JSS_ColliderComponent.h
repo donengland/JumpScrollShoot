@@ -18,15 +18,15 @@ class ColliderComponent : public Component
 {
 public:
 	ColliderComponent();
-	ColliderComponent(Entity *ColliderEntity,
-					  float localX = 0.0f, float localY = 0.0f,
-					  float Width = 0.0f, float Height = 0.0f,
-					  ColliderCategory Category = ColliderCategory::immobile);
+	ColliderComponent(Entity *entity, int id,
+					  float width = 0.0f, float height = 0.0f,
+					  ColliderCategory category = ColliderCategory::immobile,
+					  float localX = 0.0f, float localY = 0.0f);
 
 	void setEntity(Entity *ColliderEntity);
 
 	void receive(ComponentMessage message);
-	void update(float deltaTime);
+	void update(float deltaTime, float *playerXY, int numPlayers);
 
 	void resetCollisions();
 	void resolveCollision(ColliderComponent &other);
@@ -46,6 +46,9 @@ public:
 	void setX(float X);
 	void setY(float Y);
 
+	void setId(int myId);
+	int getId();
+
 	float getWidth();
 	float getHeight();
 
@@ -56,21 +59,22 @@ public:
 	void setCategory(ColliderCategory Category);
 
 private:
-	Entity *entity;
-	ColliderCategory category;
-	float x;
-	float y;
+	Entity *entity_;
+	ColliderCategory category_;
+	int id_;
+	float x_;
+	float y_;
 
-	float width;
-	float height;
+	float width_;
+	float height_;
 
-	bool right;
-	bool left;
-	bool above;
-	bool below;
+	bool right_;
+	bool left_;
+	bool above_;
+	bool below_;
 
-	bool grounded;
-	bool colliding;
+	bool grounded_;
+	bool colliding_;
 };
 
 #endif

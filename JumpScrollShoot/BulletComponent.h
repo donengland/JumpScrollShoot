@@ -21,14 +21,19 @@ class BulletComponent : public Component
 {
 public:
 	BulletComponent();
-	BulletComponent(Entity *e, float angle, float magnitude);
+	BulletComponent(Entity *entity, int id, float angle, float magnitude);
 
-	void setEntity(Entity *bulletEntity);
+	void setEntity(Entity *entity);
 	void receive(ComponentMessage message);
-	void update(float deltaTime);
+	void update(float deltaTime, float *playerXY, int numPlayers);
+
+	void setId(int id);
+	int getId();
+
 private:
-	Entity *entity;
-	float xVel, yVel;
+	Entity *entity_;
+	int id_;
+	float xVel_, yVel_;
 };
 
 #endif

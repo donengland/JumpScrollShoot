@@ -8,37 +8,46 @@
 
 #include "JSS_InputComponent.h"
 
-InputComponent::InputComponent(Entity *inputEntity, float Speed, float FireRate)
+InputComponent::InputComponent(Entity *entity, int id, float speed, float fireRate)
 {
-	entity = inputEntity;
+	entity_ = entity;
+	id_ = id;
 
-	speed = Speed;
+	speed_ = speed;
 
-	firing = 0.f;
-	fireRate = FireRate;
-	facingRight = true;
+	firing_ = 0.f;
+	fireRate_ = fireRate;
+	facingRight_ = true;
 };
 
-void InputComponent::setEntity(Entity *inputEntity)
+void InputComponent::setEntity(Entity *entity)
 {
-	entity = inputEntity;
+	entity_ = entity;
+	entity_->setBehavior(this, id_);
 }
+
+void InputComponent::setId(int id)
+{
+	id_ = id;
+	entity_->setBehaviorId(id_);
+}
+int InputComponent::getId() { return id_; }
 
 void InputComponent::receive(ComponentMessage message)
 {
 
 };
 
-void InputComponent::update(float deltaTime)
+void InputComponent::update(float deltaTime, float *playerXY, int numPlayers)
 {
 
 };
 
 void InputComponent::processInput(EntityInput input, float deltaTime)
 {
-	if (entity)
+	if (entity_)
 	{
-		float changeAmount = speed * deltaTime;
+		float changeAmount = speed_ * deltaTime;
 
 		// NOTE(don): If diagonal movement is allowed, don't allow speed bonus
 		/*
@@ -50,14 +59,14 @@ void InputComponent::processInput(EntityInput input, float deltaTime)
 		*/
 		if (input.right)
 		{
-			entity->changeX(changeAmount);
-			facingRight = true;
+			entity_->changeX(changeAmount);
+			facingRight_ = true;
 		}
 
 		if (input.left)
 		{
-			entity->changeX(-changeAmount);
-			facingRight = false;
+			entity_->changeX(-changeAmount);
+			facingRight_ = false;
 		}
 
 		// TODO(don): should up be global coordinate up, not screen space?
@@ -74,15 +83,15 @@ void InputComponent::processInput(EntityInput input, float deltaTime)
 
 		if (input.shoot)
 		{
-			if (firing < 0.f)
+			if (firing_ < 0.f)
 			{
 				printf("Shoot!\n");
 				ComponentMessage msg;
 				msg.type = MessageType::Instantiate;
 				msg.key = MessageKey::Bullet;
-				msg.x = entity->getX();
-				msg.y = entity->getY();
-				if (facingRight)
+				msg.x = entity_->getX();
+				msg.y = entity_->getY();
+				if (facingRight_)
 				{
 					msg.value = 0.f;
 				}
@@ -90,31 +99,31 @@ void InputComponent::processInput(EntityInput input, float deltaTime)
 				{
 					msg.value = 180.f;
 				}
-				entity->broadcast(msg);
-				firing = fireRate;
+				entity_->broadcast(msg);
+				firing_ = fireRate_;
 			}
 		}
 
 		if (input.jump)
 		{
-			if (!jumping)
+			if (!jumping_)
 			{
 				printf("Jump!\n");
 				ComponentMessage msg;
 				msg.type = MessageType::Physics;
 				msg.key = MessageKey::Jump;
 				msg.value = 1000.f;
-				entity->broadcast(msg);
-				jumping = true;
+				entity_->broadcast(msg);
+				jumping_ = true;
 			}
 		}
 		else
 		{
-			jumping = false;
+			jumping_ = false;
 		}
-		if (firing >= 0.f)
+		if (firing_ >= 0.f)
 		{
-			firing -= deltaTime;
+			firing_ -= deltaTime;
 		}
 	}
 };
