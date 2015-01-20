@@ -11,7 +11,8 @@
 
 BulletComponent::BulletComponent()
 {
-	entity_ = nullptr;
+  entity_ = nullptr;
+  active_ = false;
 	xVel_ = 0.f;
 	yVel_ = 0.f;
 };
@@ -21,7 +22,8 @@ BulletComponent::BulletComponent(Entity *entity, int id, float Angle, float Magn
 	entity_ = entity;
 	id_ = id;
 	xVel_ = (float)((Cos(Angle)) * Magnitude);
-	yVel_ = (float)((Sin(Angle)) * Magnitude);
+  yVel_ = (float)((Sin(Angle)) * Magnitude);
+  active_ = true;
 };
 
 void BulletComponent::setEntity(Entity *entity)
@@ -33,9 +35,12 @@ void BulletComponent::setEntity(Entity *entity)
 void BulletComponent::setId(int id)
 {
 	id_ = id;
-	entity_->setBehaviorId(id_);
+	entity_->setBehavior(this, id_);
 }
 int BulletComponent::getId() { return id_; }
+
+bool BulletComponent::get_active() { return active_; }
+void BulletComponent::set_active(bool active){ active_ = active; }
 
 void BulletComponent::receive(ComponentMessage message)
 {

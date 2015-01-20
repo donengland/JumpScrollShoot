@@ -66,6 +66,9 @@ public:
 	void setId(int id);
 	int getId();
 
+  bool get_active();
+  void set_active(bool active);
+
 	void setCollider(ColliderComponent *c);
 	void updateCollider();
 
@@ -88,7 +91,7 @@ private:
 	PhysicsForce activeForces_[MAX_PHYSICS_FORCES];
 	Entity *entity_;
 	ColliderComponent *collider_;
-
+  bool active_;
 	int id_;
 
 	float xVel_;

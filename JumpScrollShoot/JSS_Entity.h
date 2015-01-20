@@ -58,6 +58,9 @@ public:
 	void changeX(float deltaX);
 	void changeY(float deltaY);
 
+  void set_active(bool active);
+  bool get_active();
+
 	void setId(int id);
 	void setInputId(int id);
 	void setGraphicsId(int id);
@@ -81,6 +84,8 @@ private:
 	Component *collider_;
 	Component *physics_;
 	Component *behavior_;
+
+  bool active_;
 
 	float x_, y_;
 	int id_;

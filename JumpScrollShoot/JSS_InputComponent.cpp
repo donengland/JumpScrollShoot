@@ -11,7 +11,8 @@
 InputComponent::InputComponent(Entity *entity, int id, float speed, float fireRate)
 {
 	entity_ = entity;
-	id_ = id;
+  id_ = id;
+  active_ = true;
 
 	speed_ = speed;
 
@@ -32,6 +33,9 @@ void InputComponent::setId(int id)
 	entity_->setBehaviorId(id_);
 }
 int InputComponent::getId() { return id_; }
+
+bool InputComponent::get_active() { return active_; }
+void InputComponent::set_active(bool active) { active_ = active; }
 
 void InputComponent::receive(ComponentMessage message)
 {

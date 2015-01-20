@@ -27,9 +27,12 @@ public:
 	void receive(ComponentMessage message);
 	void update(float deltaTime, float *playerXY, int numPlayers);
 	void setId(int id);
-	int getId();
+  int getId();
+  bool get_active();
+  void set_active(bool active);
 private:
 	Entity *entity_;
+  bool active_;
 	int id_;
 	float xVel_, yVel_;
 	float jumpTimer_;

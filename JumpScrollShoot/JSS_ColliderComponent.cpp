@@ -14,6 +14,7 @@
 ColliderComponent::ColliderComponent()
 {
 	entity_ = nullptr;
+  active_ = false;
 }
 
 ColliderComponent::ColliderComponent(Entity *entity, int id,
@@ -23,6 +24,7 @@ ColliderComponent::ColliderComponent(Entity *entity, int id,
 {
 	entity_ = entity;
 	id_ = id;
+  active_ = true;
 	//entity->setColliderId(id);
 	category_ = category;
 
@@ -49,13 +51,16 @@ void ColliderComponent::setEntity(Entity *ColliderEntity)
 void ColliderComponent::setId(int id)
 {
 	id_ = id;
-	entity_->setColliderId(id_);
+	entity_->setCollider(this, id_);
 }
 
 int ColliderComponent::getId()
 {
 	return id_;
 }
+
+bool ColliderComponent::get_active() { return active_; }
+void ColliderComponent::set_active(bool active) { active_ = active; }
 
 void ColliderComponent::resetCollisions()
 {

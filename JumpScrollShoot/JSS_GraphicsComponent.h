@@ -35,6 +35,9 @@ public:
 
 	void setColor(uint8 red, uint8 green, uint8 blue, uint8 alpha = 0xFF);
 
+  bool get_active();
+  void set_active(bool active);
+
 	float getLocalX();
 	float getLocalY();
 
@@ -58,6 +61,7 @@ public:
 
 private:
 	Entity *entity_;
+  bool active_;
 	int id_;
 
 	float x_, y_;

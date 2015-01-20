@@ -31,6 +31,9 @@ public:
 	void resetCollisions();
 	void resolveCollision(ColliderComponent &other);
 
+  bool get_active();
+  void set_active(bool active);
+
 	bool isGrounded();
 	bool isColliding();
 
@@ -61,6 +64,7 @@ public:
 private:
 	Entity *entity_;
 	ColliderCategory category_;
+  bool active_;
 	int id_;
 	float x_;
 	float y_;

@@ -14,6 +14,7 @@
 GraphicsComponent::GraphicsComponent()
 {
 	entity_ = nullptr;
+  active_ = false;
 };
 
 GraphicsComponent::GraphicsComponent(Entity *entity, int id,
@@ -23,6 +24,7 @@ GraphicsComponent::GraphicsComponent(Entity *entity, int id,
 {
 	entity_ = entity;
 	id_ = id;
+  active_ = true;
 
 	x_ = localX;
 	y_ = localY;
@@ -48,6 +50,9 @@ void GraphicsComponent::setId(int id)
 	entity_->setGraphicsId(id);
 }
 int GraphicsComponent::getId() { return id_; }
+
+bool GraphicsComponent::get_active() { return active_; }
+void GraphicsComponent::set_active(bool active) { active_ = active; }
 
 void GraphicsComponent::render(SDL_Renderer *renderer, int xOffset, int yOffset)
 {

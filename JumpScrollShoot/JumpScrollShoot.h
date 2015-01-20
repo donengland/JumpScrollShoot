@@ -20,6 +20,9 @@
 #include "JSS_PhysicsComponent.h"
 #include "EntityManager.h"
 
+#include "Entity.h"
+#include "RectangleGraphicsComponent.h"
+
 #define MAX_ENTITY_INPUTS 5
 
 #define MAX_ENTITIES 1000

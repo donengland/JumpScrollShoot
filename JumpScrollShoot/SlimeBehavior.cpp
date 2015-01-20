@@ -11,7 +11,8 @@
 SlimeBehavior::SlimeBehavior()
 {
 	entity_ = nullptr;
-	id_ = -1;
+  id_ = -1;
+  active_ = false;
 	xVel_ = 0.f;
 	yVel_ = 0.f;
 
@@ -22,7 +23,8 @@ SlimeBehavior::SlimeBehavior()
 SlimeBehavior::SlimeBehavior(Entity *entity, int id, float xVel, float yVel)
 {
 	entity_ = entity;
-	id_ = id;
+  id_ = id;
+  active_ = true;
 	//entity_->setBehaviorId(id);
 	xVel_ = xVel;
 	yVel_ = yVel;
@@ -40,8 +42,12 @@ void SlimeBehavior::setEntity(Entity *entity)
 void SlimeBehavior::setId(int id)
 {
 	id_ = id;
+	entity_->setBehavior(this, id_);
 }
 int SlimeBehavior::getId() { return id_; }
+
+bool SlimeBehavior::get_active() { return active_; }
+void SlimeBehavior::set_active(bool active) { active_ = active; }
 
 void SlimeBehavior::receive(ComponentMessage message)
 {
@@ -55,14 +61,15 @@ void SlimeBehavior::update(float deltaTime, float *playerXY, int numPlayers)
 	{
 		if (jumpTimer_ <= 0.f)
 		{
-			/*
+			
 			printf("Slime Jump!\n");
 			ComponentMessage msg;
 			msg.type = MessageType::Physics;
 			msg.key = MessageKey::Jump;
 			msg.value = 1000.f;
-			entity->broadcast(msg);
-			*/
+			entity_->broadcast(msg);
+			
+			/*
 			// Jump in place for now
 			yVel_ -= 1200.f;
 			if (playerXY[0] < entity_->getX())
@@ -75,6 +82,7 @@ void SlimeBehavior::update(float deltaTime, float *playerXY, int numPlayers)
 				// Jump right
 				xVel_ += 200.f;
 			}
+			*/
 			// Reset jumping time
 			jumpTimer_ = jumpRate_;
 		}
@@ -83,7 +91,7 @@ void SlimeBehavior::update(float deltaTime, float *playerXY, int numPlayers)
 			jumpTimer_ -= deltaTime;
 		}
 	}
-
+	/*
 	if (yVel_ > 50.f)
 	{
 		yVel_ -= 50.f;
@@ -97,6 +105,7 @@ void SlimeBehavior::update(float deltaTime, float *playerXY, int numPlayers)
 		xVel_ = 0.f;
 		yVel_ = 0.f;
 	}
+	*/
 	/*
 	if (yVel < 300)
 	{

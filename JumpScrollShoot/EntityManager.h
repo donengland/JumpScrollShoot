@@ -45,6 +45,13 @@ public:
 private:
 	void processDeleteEntities();
 
+  int NextEntityId();
+  int NextInputId();
+  int NextColliderId();
+  int NextGraphicsId();
+  int NextPhysicsId();
+  int NextBehaviorId();
+
 	Entity entities[MAX_ENTITIES];
 	GraphicsComponent graphicsComponents[MAX_ENTITIES];
 	ColliderComponent colliderComponents[MAX_ENTITIES];
@@ -54,6 +61,13 @@ private:
 	Component *behaviorComponents[MAX_ENTITIES];
 
 	std::vector<int> deleteIds;
+
+  std::vector<int> free_entities;
+  std::vector<int> free_inputs;
+  std::vector<int> free_colliders;
+  std::vector<int> free_graphics;
+  std::vector<int> free_physics;
+  std::vector<int> free_behaviors;
 
 	int numEntities;
 	int numInputs;

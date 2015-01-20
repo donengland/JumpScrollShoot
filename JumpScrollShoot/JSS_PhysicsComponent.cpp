@@ -14,7 +14,8 @@ PhysicsComponent::PhysicsComponent()
 	activeForces_[MAX_PHYSICS_FORCES] = {};
 	entity_ = nullptr;
 	collider_ = nullptr;
-	id_ = -1;
+  id_ = -1;
+  active_ = false;
 
 	mass_ = 1.0f;
 
@@ -34,7 +35,8 @@ PhysicsComponent::PhysicsComponent(Entity *entity, ColliderComponent *collider, 
 	activeForces_[MAX_PHYSICS_FORCES] = {};
 	entity_ = entity;
 	collider_ = collider;
-	id_ = id;
+  id_ = id;
+  active_ = true;
 
 	mass_ = mass;
 
@@ -60,6 +62,10 @@ void PhysicsComponent::setId(int id)
 	id_ = id;
 	entity_->setPhysicsId(id_);
 }
+int PhysicsComponent::getId() { return id_; }
+
+bool PhysicsComponent::get_active() { return active_; }
+void PhysicsComponent::set_active(bool active) { active_ = active; }
 
 void PhysicsComponent::setCollider(ColliderComponent *c)
 {

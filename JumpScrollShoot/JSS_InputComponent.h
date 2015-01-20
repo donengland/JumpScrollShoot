@@ -37,11 +37,15 @@ public:
 	void processInput(EntityInput input, float deltaTime);
 	void update(float deltaTime, float *playerXY, int numPlayers);
 
+  bool get_active();
+  void set_active(bool active);
+
 	void setId(int id);
 	int getId();
 
 private:
 	Entity *entity_;
+  bool active_;
 	int id_;
 	float speed_;
 

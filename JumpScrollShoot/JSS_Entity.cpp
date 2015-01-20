@@ -11,7 +11,8 @@
 
 Entity::Entity()
 {
-	manager_ = nullptr;
+  manager_ = nullptr;
+  active_ = false;
 	x_ = 0.0f;
 	y_ = 0.0f;
 
@@ -34,7 +35,8 @@ Entity::Entity()
 
 Entity::Entity(IEntityManager *m, int id, float x, float y)
 {
-	manager_ = m;
+  manager_ = m;
+  active_ = true;
 	x_ = x;
 	y_ = y;
 
@@ -54,6 +56,9 @@ Entity::Entity(IEntityManager *m, int id, float x, float y)
 	behaviorIndex_ = -1;
 	behavior_ = nullptr;
 }
+
+void Entity::set_active(bool active) { active_ = active; }
+bool Entity::get_active() { return active_; }
 
 void Entity::broadcast(ComponentMessage message)
 {

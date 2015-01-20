@@ -34,6 +34,10 @@ public:
 	virtual void receive(ComponentMessage message) = 0;
 	virtual void update(float deltaTime, float *playerXY, int numPlayers) = 0;
 	virtual void setEntity(Entity *entity) = 0;
+	virtual void setId(int id) = 0;
+  virtual int getId() = 0;
+  virtual bool get_active() = 0;
+  virtual void set_active(bool active) = 0;
 };
 
 #endif

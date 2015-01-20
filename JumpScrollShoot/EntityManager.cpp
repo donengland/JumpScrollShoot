@@ -54,216 +54,343 @@ void EntityManager::processDeleteEntities()
 	for (auto id : deleteIds)
 	{
 		// Check for valid id
-		if (id < numEntities)
-		{
+		if (id < numEntities) {
 			// Copy last elements and repack arrays
 			// TODO(don): Possibly remove physics creation coupling to collider, add via getComponent?
 			// NOTE(don): Physics component needs to have its collider pointer updated
 
 			// Get associated ids
 			EntityIds ids = entities[id].getIds();
-			EntityIds movedEntity = {};
-			movedEntity.behavior = -1;
-			movedEntity.collider = -1;
-			movedEntity.entity = -1;
-			movedEntity.graphics = -1;
-			movedEntity.input = -1;
-			movedEntity.physics = -1;
+      if (1)
+      {
+        if (ids.entity >= 0)
+        {
+          entities[ids.entity].set_active(false);
+          free_entities.push_back(ids.entity);
+        }
+        if (ids.input >= 0)
+        {
+          inputComponents[ids.input].set_active(false);
+          free_inputs.push_back(ids.input);
+        }
+        if (ids.graphics >= 0)
+        {
+          graphicsComponents[ids.graphics].set_active(false);
+          free_graphics.push_back(ids.graphics);
+        }
+        if (ids.collider >= 0)
+        {
+          colliderComponents[ids.collider].set_active(false);
+          free_colliders.push_back(ids.collider);
+        }
+        if (ids.physics >= 0)
+        {
+          physicsComponents[ids.physics].set_active(false);
+          free_physics.push_back(ids.physics);
+        }
+        if (ids.behavior >= 0)
+        {
+          behaviorComponents[ids.behavior]->set_active(false);
+          free_behaviors.push_back(ids.behavior);
+        }
+      }
+      else
+      {
+        EntityIds movedEntity = {};
+        movedEntity.behavior = -1;
+        movedEntity.collider = -1;
+        movedEntity.entity = -1;
+        movedEntity.graphics = -1;
+        movedEntity.input = -1;
+        movedEntity.physics = -1;
 
-			//std::cout << "EntityManager: delete Entity: " << ids.entity <<
-			//			 ", behavior: " << ids.behavior << ", collider: " << ids.collider << std::endl;
+        //std::cout << "EntityManager: delete Entity: " << ids.entity <<
+        //			 ", behavior: " << ids.behavior << ", collider: " << ids.collider << std::endl;
 
-			Component *b = nullptr;
+        //Component *b = nullptr;
 
-			// NOTE(don): Each array's number of elements gets reduced at the end
-			//   of each block.  It may be cleaner to decrement at the start.
-			if (ids.entity >= 0)
-			{
-				// Perform a swap if deleted element is not the end element
-				if (ids.entity != (numEntities - 1))
-				{
-					// Copy last element into current hole
-					entities[ids.entity] = entities[numEntities - 1];
-					
-					// Entity has swapped, we need to update all of it's components to point here
-					movedEntity = entities[ids.entity].getIds();
+        // NOTE(don): Each array's number of elements gets reduced at the end
+        //   of each block.  It may be cleaner to decrement at the start.
+        if (ids.entity >= 0)
+        {
+          // Perform a swap if deleted element is not the end element
+          if (ids.entity != (numEntities - 1))
+          {
+            // Copy last element into current hole
+            entities[ids.entity] = entities[numEntities - 1];
 
-					// NOTE(don): updating id forces all components to update their links to the entity
-					entities[ids.entity].setId(ids.entity);
-				}
-				else
-				{
-					entities[numEntities - 1] = Entity();
-				}
-				numEntities--;
-			}
+            // Entity has swapped, we need to update all of it's components to point here
+            movedEntity = entities[ids.entity].getIds();
 
-			if (ids.graphics >= 0)
-			{
-				// Perform a swap if deleted element is not the end element
-				if (ids.graphics != (numGraphics - 1))
-				{
-					// Copy last element into current hole
-					graphicsComponents[ids.graphics] = graphicsComponents[numGraphics - 1];					
-					// Point entity to new location
-					entities[ids.entity].setGraphics(&graphicsComponents[ids.graphics], ids.graphics);
-				}
-				else
-				{
-					graphicsComponents[numGraphics - 1] = GraphicsComponent();
-				}
-				numGraphics--;
-			}
+            // NOTE(don): updating id forces all components to update their links to this entity
+            entities[ids.entity].setId(ids.entity);
+            //entities[numEntities - 1] = Entity();
+          }
+          else
+          {
+            entities[numEntities - 1] =  Entity();
+          }
+          numEntities--;
+        }
 
-			if (ids.collider >= 0)
-			{
-				// Perform a swap if deleted element is not the end element
-				if (ids.collider != (numColliders - 1))
-				{
-					// Copy last element into current hole
-					colliderComponents[ids.collider] = colliderComponents[numColliders - 1];
-					// Point entity at new location
-					entities[ids.entity].setCollider(&colliderComponents[ids.collider], ids.collider);
-				}
-				else
-				{
-					colliderComponents[ids.collider] = ColliderComponent();
-				}
-				numColliders--;
-			}
+        if (ids.graphics >= 0)
+        {
+          // Perform a swap if deleted element is not the end element
+          if (ids.graphics != (numGraphics - 1))
+          {
+            // Copy last element into current hole
+            graphicsComponents[ids.graphics] = graphicsComponents[numGraphics - 1];
+            graphicsComponents[ids.graphics].setId(ids.graphics);
+          }
+          else
+          {
+            graphicsComponents[numGraphics - 1] = GraphicsComponent();
+          }
+          numGraphics--;
+        }
 
-			if (ids.physics >= 0)
-			{
-				// Perform a swap if deleted element is not the end element
-				if (ids.physics != (numPhysics - 1))
-				{
-					// Copy last element into current hole
-					physicsComponents[ids.physics] = physicsComponents[numPhysics - 1];
+        if (ids.collider >= 0)
+        {
+          // Perform a swap if deleted element is not the end element
+          if (ids.collider != (numColliders - 1))
+          {
+            // Copy last element into current hole
+            colliderComponents[ids.collider] = colliderComponents[numColliders - 1];
+            colliderComponents[ids.collider].setId(ids.collider);
+          }
+          else
+          {
+            colliderComponents[ids.collider] = ColliderComponent();
+          }
+          numColliders--;
+        }
 
-					// Tell physics component that the collider pointer is out of date
-					physicsComponents[ids.physics].updateCollider();
+        if (ids.physics >= 0)
+        {
+          // Perform a swap if deleted element is not the end element
+          if (ids.physics != (numPhysics - 1))
+          {
+            // Copy last element into current hole
+            physicsComponents[ids.physics] = physicsComponents[numPhysics - 1];
+            physicsComponents[ids.physics].setId(ids.physics);
 
-					// Point entity at new location
-					entities[ids.entity].setPhysics(&physicsComponents[ids.physics], ids.physics);
-				}
-				else
-				{
-					physicsComponents[numPhysics - 1] = PhysicsComponent();
-				}
-				numPhysics--;
-			}
+            if (movedEntity.collider == (numColliders))
+            {
+            // Tell physics component that the collider pointer is out of date
+            physicsComponents[ids.physics].updateCollider();
+            }
+          }
+          else
+          {
+            physicsComponents[numPhysics - 1] = PhysicsComponent();
+          }
+          numPhysics--;
+        }
 
-			// NOTE(don): The input section may be replaced by a playerBehavior
-			if (ids.input >= 0)
-			{
-				// Perform a swap if deleted element is not the end element
-				if (ids.input != (numInputs - 1))
-				{
-					// Copy last element into current hole
-					inputComponents[ids.input] = inputComponents[numInputs - 1];
-					// Point entity at new location
-					entities[ids.entity].setInput(&inputComponents[ids.input], ids.input);
-				}
-				else
-				{
-					inputComponents[numInputs - 1] = InputComponent();
-				}
-				numInputs--;
-			}
+        // NOTE(don): The input section may be replaced by a playerBehavior
+        if (ids.input >= 0)
+        {
+          // Perform a swap if deleted element is not the end element
+          if (ids.input != (numInputs - 1))
+          {
+            // Copy last element into current hole
+            inputComponents[ids.input] = inputComponents[numInputs - 1];
+            inputComponents[ids.input].setId(ids.input);
+          }
+          else
+          {
+            inputComponents[numInputs - 1] = InputComponent();
+          }
+          numInputs--;
+        }
 
-			// NOTE(don): behavior component is a pointer to Component Interface
-			if (ids.behavior >= 0)
-			{
-				// Delete the behavior memory from the heap
-				delete behaviorComponents[ids.behavior];
-				behaviorComponents[ids.behavior] = nullptr;
+        // NOTE(don): behavior component is a pointer to Component Interface
+        if (ids.behavior >= 0)
+        {
+          // Delete the behavior memory from the heap
+          delete behaviorComponents[ids.behavior];
+          behaviorComponents[ids.behavior] = nullptr;
 
-				// If the deleted element is not at the end of the array, do a swap
-				if (ids.behavior != (numBehaviors - 1))
-				{
-					// Point deleted elements position to last elements address on heap (Component)
-					behaviorComponents[ids.behavior] = behaviorComponents[numBehaviors - 1];
-					// Entities pointers were clear, reconnect this pointer
-					entities[ids.entity].setBehavior(behaviorComponents[ids.behavior], ids.behavior);
-				}
-				behaviorComponents[numBehaviors - 1] = nullptr;
-				numBehaviors--;
-			}
+          // If the deleted element is not at the end of the array, do a swap
+          if (ids.behavior != (numBehaviors - 1))
+          {
+            // Point to last elements address on heap (Component)
+            behaviorComponents[ids.behavior] = behaviorComponents[numBehaviors - 1];
+            behaviorComponents[ids.behavior]->setId(ids.behavior);
+            behaviorComponents[numBehaviors - 1] = nullptr;
+          }
+          numBehaviors--;
+        }
+      }
 		}
 	}
 	deleteIds.clear();
 }
 
+int EntityManager::NextEntityId()
+{
+  int entity_id;
+  if (free_entities.size() > 0)
+  {
+    entity_id = free_entities.back();
+    free_entities.pop_back();
+  }
+  else
+  {
+    entity_id = numEntities;
+    numEntities++;
+  }
+  return entity_id;
+}
+
+int EntityManager::NextColliderId()
+{
+  int collider_id;
+  if (free_colliders.size() > 0)
+  {
+    collider_id = free_colliders.back();
+    free_colliders.pop_back();
+  }
+  else
+  {
+    collider_id = numColliders;
+    numColliders++;
+  }
+  return collider_id;
+}
+
+int EntityManager::NextGraphicsId()
+{
+  int graphics_id;
+  if (free_graphics.size() > 0)
+  {
+    graphics_id = free_colliders.back();
+    free_colliders.pop_back();
+  }
+  else
+  {
+    graphics_id = numGraphics;
+    numGraphics++;
+  }
+  return graphics_id;
+}
+
+int EntityManager::NextPhysicsId()
+{
+  int physics_id;
+  if (free_physics.size() > 0)
+  {
+    physics_id = free_physics.back();
+    free_physics.pop_back();
+  }
+  else
+  {
+    physics_id = numPhysics;
+    numPhysics++;
+  }
+  return physics_id;
+}
+
+int EntityManager::NextBehaviorId()
+{
+  int behavior_id;
+  if (free_behaviors.size() > 0)
+  {
+    behavior_id = free_behaviors.back();
+    free_behaviors.pop_back();
+    delete behaviorComponents[behavior_id];
+    behaviorComponents[behavior_id] = nullptr;
+  }
+  else
+  {
+    behavior_id = numBehaviors;
+    numBehaviors++;
+  }
+  return behavior_id;
+}
+
 void EntityManager::CreateBlock(float x, float y, float w, float h, uint8 red, uint8 green, uint8 blue, uint8 alpha)
 {
-	Entity block(this, numEntities, x, y);
-	entities[numEntities] = block;
-	numEntities++;
+  if (numEntities < MAX_ENTITIES)
+  {
+    int entity_id = NextEntityId();
+    int collider_id = NextColliderId();
+    int graphics_id = NextGraphicsId();
 
-	ColliderComponent collider(&entities[numEntities - 1], numColliders, w, h);
-	colliderComponents[numColliders] = collider;
-	numColliders++;
+    Entity block(this, entity_id, x, y);
+    entities[entity_id] = block;
 
-	GraphicsComponent graphics(&entities[numEntities - 1], numGraphics, red, green, blue, alpha, w, h);
-	graphicsComponents[numGraphics] = graphics;
-	numGraphics++;
+    ColliderComponent collider(&entities[entity_id], collider_id, w, h);
+    colliderComponents[collider_id] = collider;
 
-	entities[numEntities - 1].setCollider(&colliderComponents[numColliders - 1], (numColliders - 1));
-	entities[numEntities - 1].setGraphics(&graphicsComponents[numColliders - 1], (numGraphics - 1));
+    GraphicsComponent graphics(&entities[entity_id], graphics_id, red, green, blue, alpha, w, h);
+    graphicsComponents[graphics_id] = graphics;
+
+    entities[entity_id].setCollider(&colliderComponents[collider_id], collider_id);
+    entities[entity_id].setGraphics(&graphicsComponents[graphics_id], graphics_id);
+  }
 }
 
 void EntityManager::CreateBullet(float x, float y, float w, float h, float angle, float magnitude, uint8 red, uint8 green, uint8 blue, uint8 alpha)
 {
-	Entity block(this, numEntities, x, y);
-	entities[numEntities] = block;
-	numEntities++;
+  if (numEntities < MAX_ENTITIES)
+  {
+    int entity_id = NextEntityId();
+    int collider_id = NextColliderId();
+    int graphics_id = NextGraphicsId();
+    int behavior_id = NextBehaviorId();
 
-	ColliderComponent collider(&entities[numEntities - 1], numColliders, w, h, ColliderCategory::playerAttack);
-	colliderComponents[numColliders] = collider;
-	numColliders++;
+    Entity bullet(this, entity_id, x, y);
+    entities[entity_id] = bullet;
 
-	GraphicsComponent graphics(&entities[numEntities - 1], numGraphics, red, green, blue, alpha, w, h);
-	graphicsComponents[numGraphics] = graphics;
-	numGraphics++;
+    ColliderComponent collider(&entities[entity_id], collider_id, w, h, ColliderCategory::playerAttack);
+    colliderComponents[collider_id] = collider;
 
-	BulletComponent *bullet = new BulletComponent(&entities[numEntities - 1], numBehaviors, angle, magnitude);
-	behaviorComponents[numBehaviors] = bullet;
-	numBehaviors++;
+    GraphicsComponent graphics(&entities[entity_id], graphics_id, red, green, blue, alpha, w, h);
+    graphicsComponents[graphics_id] = graphics;
 
-	entities[numEntities - 1].setCollider(&colliderComponents[numColliders - 1], (numColliders - 1));
-	entities[numEntities - 1].setGraphics(&graphicsComponents[numGraphics - 1], (numGraphics - 1));
-	entities[numEntities - 1].setBehavior(behaviorComponents[numBehaviors - 1], (numBehaviors - 1));
+    BulletComponent *behavior = new BulletComponent(&entities[entity_id], behavior_id, angle, magnitude);
+    behaviorComponents[behavior_id] = behavior;
+
+    entities[entity_id].setCollider(&colliderComponents[collider_id], collider_id);
+    entities[entity_id].setGraphics(&graphicsComponents[graphics_id], graphics_id);
+    entities[entity_id].setBehavior(behaviorComponents[behavior_id], behavior_id);
+  }
 }
 
 void EntityManager::CreateSlime(float x, float y)
 {
-	float w = 25.f;
-	float h = 25.f;
+  if (numEntities < MAX_ENTITIES)
+  {
+    int entity_id = NextEntityId();
+    int collider_id = NextColliderId();
+    int graphics_id = NextGraphicsId();
+    int physics_id = NextPhysicsId();
+    int behavior_id = NextBehaviorId();
 
-	Entity enemy(this, numEntities, x, y);
-	entities[numEntities] = enemy;
-	numEntities++;
+    float w = 25.f;
+    float h = 25.f;
 
-	ColliderComponent collider(&entities[numEntities - 1], numColliders, w, h, ColliderCategory::enemy);
-	colliderComponents[numColliders] = collider;
-	numColliders++;
+    Entity enemy(this, entity_id, x, y);
+    entities[entity_id] = enemy;
 
-	GraphicsComponent graphics(&entities[numEntities - 1], numGraphics, 0x00, 0xAA, 0x00, 0xFF, w, h);
-	graphicsComponents[numGraphics] = graphics;
-	numGraphics++;
+    ColliderComponent collider(&entities[entity_id], collider_id, w, h, ColliderCategory::enemy);
+    colliderComponents[collider_id] = collider;
 
-	PhysicsComponent slimePhysics(&entities[numEntities - 1], &colliderComponents[numColliders - 1], numPhysics);
-	physicsComponents[numPhysics] = slimePhysics;
-	numPhysics++;
+    GraphicsComponent graphics(&entities[entity_id], graphics_id, 0x00, 0xAA, 0x00, 0xFF, w, h);
+    graphicsComponents[graphics_id] = graphics;
 
-	SlimeBehavior *slime = new SlimeBehavior(&entities[numEntities - 1], numBehaviors);
-	behaviorComponents[numBehaviors] = slime;
-	numBehaviors++;
+    PhysicsComponent slimePhysics(&entities[entity_id], &colliderComponents[collider_id], physics_id);
+    physicsComponents[physics_id] = slimePhysics;
 
-	entities[numEntities - 1].setCollider(&colliderComponents[numColliders - 1], (numColliders - 1));
-	entities[numEntities - 1].setGraphics(&graphicsComponents[numGraphics - 1], (numGraphics - 1));
-	entities[numEntities - 1].setPhysics(&physicsComponents[numPhysics - 1], (numPhysics - 1));
-	entities[numEntities - 1].setBehavior(behaviorComponents[numBehaviors - 1], (numBehaviors - 1));
+    SlimeBehavior *slime = new SlimeBehavior(&entities[entity_id], behavior_id);
+    behaviorComponents[behavior_id] = slime;
+
+    entities[entity_id].setCollider(&colliderComponents[collider_id], collider_id);
+    entities[entity_id].setGraphics(&graphicsComponents[graphics_id], graphics_id);
+    entities[entity_id].setPhysics(&physicsComponents[physics_id], physics_id);
+    entities[entity_id].setBehavior(behaviorComponents[behavior_id], behavior_id);
+  }
 }
 
 bool EntityManager::loadWorld()
@@ -313,13 +440,13 @@ bool EntityManager::loadWorld()
 	// Create World Entity
 	{
 		// NOTE(don): Test different world sizes
-		worldWidth = 5000;
+		worldWidth = 1000;
 		worldHeight = 480;
 
 		Entity worldLeft(this, 1, (float)(-worldWidth), 0.f);
-		Entity worldRight(this, 1, (float)(worldWidth), 0.f);
-		Entity worldTop(this, 1, (float)(-worldWidth), (float)(-worldHeight));
-		Entity worldBottom(this, 1, (float)(-worldWidth), (float)(worldHeight));
+		Entity worldRight(this, 2, (float)(worldWidth), 0.f);
+		Entity worldTop(this, 3, (float)(-worldWidth), (float)(-worldHeight));
+		Entity worldBottom(this, 4, (float)(-worldWidth), (float)(worldHeight));
 		entities[1] = worldLeft;
 		entities[2] = worldRight;
 		entities[3] = worldTop;
@@ -452,14 +579,20 @@ bool EntityManager::update(EntityInput* input, int NumInputs, uint32 DeltaTime, 
 	// Process all behaviors
 	// NOTE(don): this area cannot be cache aligned for a long time
 	for (int index = 0; index < numBehaviors; index++)
-	{
-		behaviorComponents[index]->update(deltaTime, playerXY, numPlayers);
+  {
+    if (behaviorComponents[index]->get_active())
+    {
+      behaviorComponents[index]->update(deltaTime, playerXY, numPlayers);
+    }
 	}
 
 	// Process all forces
 	for (int index = 0; index < numPhysics; index++)
 	{
-		physicsComponents[index].update(deltaTime, playerXY, numPlayers);
+    if (physicsComponents[index].get_active())
+    {
+      physicsComponents[index].update(deltaTime, playerXY, numPlayers);
+    }
 	}
 
 	// TODO(don): Implement a broad stage pass to reduce the number of comparisons
@@ -472,46 +605,49 @@ bool EntityManager::update(EntityInput* input, int NumInputs, uint32 DeltaTime, 
 	}
 	for (int primary = 0; primary < numColliders; primary++)
 	{
-		ColliderCategory primaryCat = colliderComponents[primary].getCategory();
+    if (colliderComponents[primary].get_active())
+    {
+      ColliderCategory primaryCat = colliderComponents[primary].getCategory();
 
-		//if (primaryCat != ColliderCategory::immobile)
-		//{
+      //if (primaryCat != ColliderCategory::immobile)
+      //{
 
-			// Test for collisions with other colliderComponents
-			for (int secondary = primary + 1; secondary < numColliders; secondary++)
-			{
+      // Test for collisions with other colliderComponents
+      for (int secondary = primary + 1; secondary < numColliders; secondary++)
+      {
 
-				// Collision test between primary and secondary
-				if (colliderComponents[primary].getMaxX() < colliderComponents[secondary].getMinX() ||
-					colliderComponents[primary].getMinX() > colliderComponents[secondary].getMaxX() ||
-					colliderComponents[primary].getMaxY() < colliderComponents[secondary].getMinY() ||
-					colliderComponents[primary].getMinY() > colliderComponents[secondary].getMaxY())
-				{
-					// no component collision
-				}
-				else
-				{
-					// TODO(don): Logging collisions
-					// we have a component collision
-					if (primaryCat != ColliderCategory::immobile)
-					{
-						colliderComponents[primary].resolveCollision(colliderComponents[secondary]);
-					}
+        // Collision test between primary and secondary
+        if (colliderComponents[primary].getMaxX() < colliderComponents[secondary].getMinX() ||
+          colliderComponents[primary].getMinX() > colliderComponents[secondary].getMaxX() ||
+          colliderComponents[primary].getMaxY() < colliderComponents[secondary].getMinY() ||
+          colliderComponents[primary].getMinY() > colliderComponents[secondary].getMaxY())
+        {
+          // no component collision
+        }
+        else
+        {
+          // TODO(don): Logging collisions
+          // we have a component collision
+          if (primaryCat != ColliderCategory::immobile)
+          {
+            colliderComponents[primary].resolveCollision(colliderComponents[secondary]);
+          }
 
-					// TODO(don): Profiling - is it better to do double the checks in sequence or notify secondary immediately?
-					ColliderCategory secondaryCat = colliderComponents[secondary].getCategory();
-					if (secondaryCat != ColliderCategory::immobile)
-					{
-						// Notify other component of collision
-						colliderComponents[secondary].resolveCollision(colliderComponents[primary]);
-					}
-				}
-			}
-		//}
-		if (primaryCat == ColliderCategory::player)
-		{
-			// TODO(don): keep players within camera borders?
-		}
+          // TODO(don): Profiling - is it better to do double the checks in sequence or notify secondary immediately?
+          ColliderCategory secondaryCat = colliderComponents[secondary].getCategory();
+          if (secondaryCat != ColliderCategory::immobile)
+          {
+            // Notify other component of collision
+            colliderComponents[secondary].resolveCollision(colliderComponents[primary]);
+          }
+        }
+      }
+      //}
+      if (primaryCat == ColliderCategory::player)
+      {
+        // TODO(don): keep players within camera borders?
+      }
+    }
 	}
 
 
@@ -554,17 +690,20 @@ bool EntityManager::update(EntityInput* input, int NumInputs, uint32 DeltaTime, 
 	{
 		camCenterY = worldHeight - camHalfHeight;
 	}
-	
-	// Process all deletions before drawing
-	processDeleteEntities();
 
 	// Process all rendering
 	int xOffset = camCenterX - camHalfWidth;
 	int yOffset = camCenterY - camHalfHeight;
 	for (int index = 0; index < numGraphics; index++)
 	{
-		graphicsComponents[index].render(renderer, xOffset, yOffset);
-	}
+    if (graphicsComponents[index].get_active())
+    {
+      graphicsComponents[index].render(renderer, xOffset, yOffset);
+    }
+  }
+
+  // Process all deletions before drawing
+  processDeleteEntities();
 
 	return result;
 }
